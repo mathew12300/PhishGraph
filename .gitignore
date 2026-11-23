@@ -12,10 +12,10 @@ instance/
 *.sqlite
 *.sqlite3
 
-# Model artifacts & experiment weights (train.py --demo rebuilds locally)
-artifacts/*.joblib
+# Model artifacts & experiment weights (track base detector.joblib for serverless deployment)
 artifacts/experiments/*
 !artifacts/experiments/.gitkeep
+!artifacts/detector.joblib
 !artifacts/metrics.json
 
 # Uploaded custom datasets

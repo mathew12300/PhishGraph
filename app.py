@@ -2,6 +2,7 @@ import hashlib
 import hmac
 import io
 import json
+import os
 import time
 from pathlib import Path
 from flask import Flask, abort, jsonify, render_template, request, Response, send_file
@@ -44,8 +45,20 @@ def create_app(model=None, database=None):
     app = Flask(__name__)
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB max for dataset uploads
     
-    db_path = Path(database) if database else ROOT / 'instance/history.sqlite3'
-    init_db(db_path)
+    if database:
+        db_path = Path(database)
+    elif os.environ.get('VERCEL') or not os.access(ROOT, os.W_OK):
+        db_path = Path('/tmp/history.sqlite3')
+    else:
+        db_path = ROOT / 'instance/history.sqlite3'
+
+    try:
+        init_db(db_path)
+    except Exception:
+        # Graceful fallback to /tmp if filesystem is read-only (e.g. Vercel serverless environment)
+        db_path = Path('/tmp/history.sqlite3')
+        init_db(db_path)
+
     state = AppState(model=model, root=ROOT)
 
     @app.after_request
@@ -667,5 +680,8 @@ def create_app(model=None, database=None):
 
     return app
 
+# Top-level Flask instance required by Vercel Serverless Functions and WSGI runtimes
+app = create_app()
+
 if __name__ == '__main__':
-    create_app().run(host='127.0.0.1', port=5000, debug=False)
+    app.run(host='127.0.0.1', port=5000, debug=False)
