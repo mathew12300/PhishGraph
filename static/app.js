@@ -92,6 +92,25 @@ function downloadBlob(blob, filename) {
 // ============================================================================
 // NAVIGATION & THEME CONTROLS
 // ============================================================================
+function openMobileNav() {
+  const sb = $('sidebar');
+  const bd = $('sidebar-backdrop');
+  if (sb) sb.classList.add('mobile-open');
+  if (bd) bd.classList.add('is-active');
+  document.body.classList.add('mobile-nav-locked');
+}
+
+function closeMobileNav() {
+  const sb = $('sidebar');
+  const bd = $('sidebar-backdrop');
+  if (sb) sb.classList.remove('mobile-open');
+  if (bd) bd.classList.remove('is-active');
+  document.body.classList.remove('mobile-nav-locked');
+}
+
+window.openMobileNav = openMobileNav;
+window.closeMobileNav = closeMobileNav;
+
 function initNavigation() {
   $$('.nav-link').forEach(link => {
     link.addEventListener('click', e => {
@@ -127,12 +146,35 @@ function initNavigation() {
     });
   }
 
-  // Sidebar toggle
+  // Desktop & Mobile Sidebar toggle
   const sidebarToggle = $('sidebar-toggle');
   if (sidebarToggle) {
     sidebarToggle.addEventListener('click', () => {
-      $('sidebar').classList.toggle('collapsed');
+      if (window.innerWidth <= 900) {
+        closeMobileNav();
+      } else {
+        $('sidebar').classList.toggle('collapsed');
+      }
     });
+  }
+
+  // Mobile Hamburger Toggle
+  const mobileNavToggle = $('mobile-nav-toggle');
+  if (mobileNavToggle) {
+    mobileNavToggle.addEventListener('click', () => {
+      const sb = $('sidebar');
+      if (sb && sb.classList.contains('mobile-open')) {
+        closeMobileNav();
+      } else {
+        openMobileNav();
+      }
+    });
+  }
+
+  // Mobile Backdrop Click
+  const backdrop = $('sidebar-backdrop');
+  if (backdrop) {
+    backdrop.addEventListener('click', closeMobileNav);
   }
 }
 
@@ -153,6 +195,9 @@ function switchSection(sectionId) {
     s.classList.toggle('active', s.id === sectionId);
   });
   window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // On mobile screens, automatically close the sidebar drawer
+  closeMobileNav();
 
   // Section-specific hooks
   if (sectionId === 'history') loadHistory();
@@ -1242,9 +1287,12 @@ function initHistory() {
     });
   }
 
-  // Keyboard shortcut: Escape to close drawer
+  // Keyboard shortcut: Escape to close drawer and mobile navigation
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeDrawer();
+    if (e.key === 'Escape') {
+      closeDrawer();
+      closeMobileNav();
+    }
   });
 }
 
