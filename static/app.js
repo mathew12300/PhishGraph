@@ -205,12 +205,7 @@ function switchSection(sectionId) {
   if (sectionId === 'playground') updatePlaygroundSimulation();
   if (sectionId === 'training') { loadTrainingStatus(); loadExperiments(); loadDatasetsDropdown(); }
   if (sectionId === 'datasets') loadDatasetsTable();
-  if (sectionId === 'guided-demo') loadDemoContent();
   if (sectionId === 'graph-view') loadSpectralMetrics();
-  if (sectionId === 'adversarial') runAdversarialSimulation();
-  if (sectionId === 'brand-radar') runBrandRadarAnalysis();
-  if (sectionId === 'campaigns') runCampaignClustering();
-  if (sectionId === 'soc-intel') loadSocQueue();
 }
 
 // ============================================================================
