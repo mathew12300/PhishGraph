@@ -126,7 +126,7 @@ class Detector:
             })
 
         min_dist = float(distances[ids[0]])
-        is_limited_support = bool(min_dist > 5.0)
+        is_limited_support = bool(min_dist > 6.5)
 
         # Enriched feature details with plain-English rationales
         feature_breakdown = {}

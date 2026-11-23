@@ -1,11 +1,11 @@
 {
   "dataset": "demo.csv",
-  "sha256": "575e2c6514f9e3c50839f6e44f054d545de8046316576ddec3d976786fd360dc",
-  "synthetic_demo": true,
+  "sha256": "094a2d40647184a24cbb1a68728825412f065f037be350c0c2c048fa8dfd273e",
+  "synthetic_demo": false,
   "seed": 42,
-  "train_rows": 363,
-  "test_rows": 117,
-  "labeled_train_rows": 255,
+  "train_rows": 2457,
+  "test_rows": 815,
+  "labeled_train_rows": 1720,
   "split": "25% holdout grouped by exact hostname; holdout excluded from scaler and training graph",
   "limitations": [
     "Host grouping does not isolate registrable domains, campaigns, or time.",
@@ -26,46 +26,46 @@
       "roc_auc": 1.0,
       "confusion_matrix": [
         [
-          60,
+          300,
           0
         ],
         [
           0,
-          57
+          515
         ]
       ]
     },
     "graph_ml": {
-      "precision": 1.0,
+      "precision": 0.9981,
       "recall": 1.0,
-      "f1": 1.0,
-      "accuracy": 1.0,
+      "f1": 0.999,
+      "accuracy": 0.9988,
       "roc_auc": 1.0,
       "confusion_matrix": [
         [
-          60,
-          0
+          299,
+          1
         ],
         [
           0,
-          57
+          515
         ]
       ]
     },
     "graph_plus_fuzzy": {
       "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "accuracy": 1.0,
+      "recall": 0.9825,
+      "f1": 0.9912,
+      "accuracy": 0.989,
       "roc_auc": 1.0,
       "confusion_matrix": [
         [
-          60,
+          300,
           0
         ],
         [
-          0,
-          57
+          9,
+          506
         ]
       ]
     }

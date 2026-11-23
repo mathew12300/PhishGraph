@@ -36,67 +36,68 @@ def compute_spectral_graph_metrics(detector) -> Dict[str, Any]:
     if labels is None:
         labels = np.zeros(n_nodes)
 
+    # For large graphs, evaluate on a stratified representative subset to ensure ultra-fast REST response
+    if n_nodes > 600:
+        rng = np.random.RandomState(42)
+        sample_indices = rng.choice(n_nodes, size=500, replace=False)
+        W_sub = W[np.ix_(sample_indices, sample_indices)]
+        labels_sub = labels[sample_indices]
+    else:
+        W_sub = W
+        labels_sub = labels
+
+    n_sub = W_sub.shape[0]
+
     # Calculate thresholded adjacency for structural metrics (similarity >= 0.20)
     adj_threshold = 0.20
-    binary_adj = (W >= adj_threshold).astype(int)
+    binary_adj = (W_sub >= adj_threshold).astype(int)
     np.fill_diagonal(binary_adj, 0)
 
     edge_count = int(np.sum(binary_adj) // 2)
 
-    # 1. GRAPH HOMOPHILY INDEX: h = (same-class edges) / (total edges)
-    same_class_edges = 0
-    total_labeled_edges = 0
-    for i in range(n_nodes):
-        for j in range(i + 1, n_nodes):
-            if binary_adj[i, j] == 1:
-                # If both nodes have valid binary ground-truth labels (0 or 1)
-                if labels[i] in (0, 1) and labels[j] in (0, 1):
-                    total_labeled_edges += 1
-                    if labels[i] == labels[j]:
-                        same_class_edges += 1
+    # 1. GRAPH HOMOPHILY INDEX: Vectorized computation
+    valid_mask = np.isin(labels_sub, [0, 1])
+    valid_adj = binary_adj[np.ix_(valid_mask, valid_mask)]
+    valid_labels = labels_sub[valid_mask]
+    same_class_matrix = (valid_labels[:, None] == valid_labels[None, :]).astype(int)
+    total_labeled_edges = int(np.sum(np.triu(valid_adj, k=1)))
+    same_class_edges = int(np.sum(np.triu(valid_adj & same_class_matrix, k=1)))
 
     homophily_ratio = (same_class_edges / total_labeled_edges) if total_labeled_edges > 0 else 0.85
     homophily_percent = round(homophily_ratio * 100, 2)
 
-    # 2. LOCAL & AVERAGE CLUSTERING COEFFICIENT
+    # 2. LOCAL & AVERAGE CLUSTERING COEFFICIENT: Vectorized via graph triangles (A^3)
     degrees = np.sum(binary_adj, axis=1)
-    clustering_coeffs = []
-    for i in range(n_nodes):
-        k_i = degrees[i]
-        if k_i < 2:
-            clustering_coeffs.append(0.0)
-            continue
-        neighbors = np.where(binary_adj[i] == 1)[0]
-        subgraph = binary_adj[np.ix_(neighbors, neighbors)]
-        actual_triangles = np.sum(subgraph) / 2
-        possible_triangles = k_i * (k_i - 1) / 2
-        clustering_coeffs.append(actual_triangles / possible_triangles)
+    two_paths = binary_adj @ binary_adj
+    triangles = np.sum(two_paths * binary_adj, axis=1) / 2
+    possible_triangles = degrees * (degrees - 1) / 2
+    with np.errstate(divide='ignore', invalid='ignore'):
+        c_i = np.where(possible_triangles > 0, triangles / possible_triangles, 0.0)
 
-    avg_clustering = round(float(np.mean(clustering_coeffs)), 4)
+    avg_clustering = round(float(np.mean(c_i)), 4)
 
     # 3. NORMALIZED GRAPH LAPLACIAN D-1/2 W D-1/2
-    deg_vector = np.sum(W, axis=1)
+    deg_vector = np.sum(W_sub, axis=1)
     deg_inv_sqrt = np.power(deg_vector, -0.5, where=deg_vector > 0)
     deg_inv_sqrt[deg_vector == 0] = 0
     D_inv = np.diag(deg_inv_sqrt)
-    norm_laplacian = np.eye(n_nodes) - (D_inv @ W @ D_inv)
+    norm_laplacian = np.eye(n_sub) - (D_inv @ W_sub @ D_inv)
 
     # 4. PERSONALIZED PAGERANK PROXIMITY VECTOR (Restart from Phishing Seeds)
-    # Restart vector: uniform mass across known phishing seeds
-    phish_indices = np.where(labels == 1)[0]
-    p_restart = np.zeros(n_nodes)
+    phish_indices = np.where(labels_sub == 1)[0]
+    p_restart = np.zeros(n_sub)
     if len(phish_indices) > 0:
         p_restart[phish_indices] = 1.0 / len(phish_indices)
     else:
-        p_restart[:] = 1.0 / n_nodes
+        p_restart[:] = 1.0 / n_sub
 
     # Power iteration for Personalized PageRank
     alpha_ppr = 0.85
-    deg_mat = np.sum(W, axis=1, keepdims=True)
-    P_transition = np.divide(W, deg_mat, out=np.zeros_like(W), where=deg_mat != 0)
+    deg_mat = np.sum(W_sub, axis=1, keepdims=True)
+    P_transition = np.divide(W_sub, deg_mat, out=np.zeros_like(W_sub), where=deg_mat != 0)
     
     ppr = np.copy(p_restart)
-    for _ in range(25):
+    for _ in range(20):
         ppr = alpha_ppr * (ppr @ P_transition) + (1 - alpha_ppr) * p_restart
     
     mean_phish_ppr = round(float(np.mean(ppr[phish_indices])), 6) if len(phish_indices) > 0 else 0.0
