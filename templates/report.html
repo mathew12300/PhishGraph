@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PhishGraph Analysis Report · {{ scan.host }}</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    @media print {
+      body { background: #fff !important; color: #111 !important; }
+      .no-print { display: none !important; }
+      .card { box-shadow: none !important; border: 1px solid #ccc !important; }
+    }
+    .report-wrap { max-width: 800px; margin: 40px auto; padding: 24px; }
+  </style>
+</head>
+<body class="report-body">
+  <div class="report-wrap">
+    <div class="no-print" style="margin-bottom: 24px; display:flex; justify-content:space-between; align-items:center;">
+      <a href="/" class="btn btn-secondary">← Back to Dashboard</a>
+      <button onclick="window.print()" class="btn btn-primary">Print / Save as PDF 🖨️</button>
+    </div>
+
+    <header class="card" style="border-left: 6px solid var(--accent); margin-bottom: 24px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div>
+          <span class="eyebrow" style="color:var(--accent);">PHISHGRAPH · SECURITY RESEARCH LAB</span>
+          <h1 style="font-size: 24px; margin: 8px 0;">Threat Assessment Report</h1>
+          <p class="muted" style="margin:0;">Target Hostname: <strong style="color:var(--text)">{{ scan.host }}</strong></p>
+        </div>
+        <div style="text-align:right;">
+          <span class="pill">{{ scan.model_version }}</span>
+          <p class="fine" style="margin-top:6px;">{{ scan.created }} UTC</p>
+        </div>
+      </div>
+    </header>
+
+    <div class="result-grid" style="margin-bottom: 24px;">
+      <article class="card score-card" style="text-align:center;">
+        <span class="eyebrow">COMPOSITE RISK INDEX</span>
+        <div class="score" style="font-size:48px; font-weight:700; margin:12px 0;">
+          {{ scan.risk | round(1) }} <small style="font-size:16px;">/ 100</small>
+        </div>
+        <div class="badge-row" style="justify-content:center;">
+          <span class="badge {% if scan.verdict == 'High risk' %}badge-high{% elif scan.verdict == 'Review needed' %}badge-review{% else %}badge-low{% endif %}">
+            {{ scan.verdict }}
+          </span>
+        </div>
+      </article>
+
+      <article class="card">
+        <h3>Evidence Breakdown</h3>
+        <div style="margin-top:16px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+            <span>Graph ML Score (LabelSpreading):</span>
+            <strong>{{ scan.graph_score | round(1) }}%</strong>
+          </div>
+          <progress value="{{ scan.graph_score }}" max="100" style="width:100%; height:8px;"></progress>
+        </div>
+        <div style="margin-top:16px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+            <span>Lexical Heuristic Risk:</span>
+            <strong>{{ scan.lexical_score | round(1) }}%</strong>
+          </div>
+          <progress value="{{ scan.lexical_score }}" max="100" style="width:100%; height:8px;"></progress>
+        </div>
+      </article>
+    </div>
+
+    <article class="card" style="margin-bottom: 24px;">
+      <h3>Observed Structural Warnings</h3>
+      {% if scan.signals %}
+      <ul style="margin-top:12px; padding-left:20px;">
+        {% for s in scan.signals %}
+        <li style="margin-bottom:8px;">
+          <strong>{{ s.signal }}</strong>
+          {% if s.weight %}<span class="fine">(Weight: +{{ s.weight }})</span>{% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="fine" style="margin-top:12px;">No high-risk lexical indicators were triggered. Note: Absence of warnings does NOT establish safety.</p>
+      {% endif %}
+    </article>
+
+    <article class="card" style="margin-bottom: 24px;">
+      <h3>Extracted Feature Values</h3>
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top:12px;">
+        {% for k, v in scan.features.items() %}
+        <div style="background:var(--surface-muted); padding:10px; border-radius:6px;">
+          <span class="fine" style="text-transform:capitalize;">{{ k.replace('_', ' ') }}</span>
+          <div style="font-family:var(--font-mono); font-size:14px; font-weight:600; margin-top:4px;">{{ v }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </article>
+
+    <footer class="card fine" style="background:var(--surface-muted); border:1px solid var(--border);">
+      <strong>Methodology & Limitations Notice:</strong>
+      <p style="margin:6px 0;">This analysis is generated using deterministic passive URL lexical feature extraction, semi-supervised graph label spreading, and Sugeno fuzzy inference. No network requests or DNS lookups were performed against the evaluated domain. Submitted URLs are kept non-clickable for security.</p>
+      <p style="margin:0;">PhishGraph Academic Research Prototype · Supervised Graph ML & Sugeno Fuzzy Logic</p>
+    </footer>
+  </div>
+</body>
+</html>

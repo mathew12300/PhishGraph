@@ -1,0 +1,1224 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PhishGraph · Graph ML & Fuzzy Logic Security Research</title>
+  <link rel="stylesheet" href="/static/style.css?v=3.0">
+  <script src="/static/app.js?v=3.0" defer></script>
+</head>
+<body>
+<div class="app-container">
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a class="brand" href="/">
+        <div class="brand-logo">◈</div>
+        <div class="brand-text">
+          <span class="brand-name">PhishGraph</span>
+          <span class="brand-sub">RESEARCH WORKSPACE</span>
+        </div>
+      </a>
+      <button class="icon-btn sidebar-toggle-btn" id="sidebar-toggle" title="Toggle Sidebar" aria-label="Toggle Sidebar">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#scanner" class="nav-link active" data-section="scanner">
+        <span class="nav-num">01</span>
+        <span class="nav-label">URL Scanner</span>
+      </a>
+      <a href="#graph-view" class="nav-link" data-section="graph-view">
+        <span class="nav-num">02</span>
+        <span class="nav-label">Graph Explorer</span>
+      </a>
+      <a href="#explainability" class="nav-link" data-section="explainability">
+        <span class="nav-num">03</span>
+        <span class="nav-label">Explainability</span>
+      </a>
+      <a href="#playground" class="nav-link" data-section="playground">
+        <span class="nav-num">04</span>
+        <span class="nav-label">Fuzzy Playground</span>
+      </a>
+      <a href="#evaluation" class="nav-link" data-section="evaluation">
+        <span class="nav-num">05</span>
+        <span class="nav-label">Model Evaluation</span>
+      </a>
+      <a href="#training" class="nav-link" data-section="training">
+        <span class="nav-num">06</span>
+        <span class="nav-label">Training Studio</span>
+      </a>
+      <a href="#datasets" class="nav-link" data-section="datasets">
+        <span class="nav-num">07</span>
+        <span class="nav-label">Dataset Manager</span>
+      </a>
+      <a href="#history" class="nav-link" data-section="history">
+        <span class="nav-num">08</span>
+        <span class="nav-label">Scan History</span>
+      </a>
+      <a href="#guided-demo" class="nav-link" data-section="guided-demo">
+        <span class="nav-num">09</span>
+        <span class="nav-label">Guided Demo & Viva</span>
+      </a>
+      <a href="#adversarial" class="nav-link" data-section="adversarial">
+        <span class="nav-num">10</span>
+        <span class="nav-label">Adversarial Evasion Lab</span>
+      </a>
+      <a href="#brand-radar" class="nav-link" data-section="brand-radar">
+        <span class="nav-num">11</span>
+        <span class="nav-label">Brand & Homograph Radar</span>
+      </a>
+      <a href="#campaigns" class="nav-link" data-section="campaigns">
+        <span class="nav-num">12</span>
+        <span class="nav-label">Campaign Kit Clustering</span>
+      </a>
+      <a href="#soc-intel" class="nav-link" data-section="soc-intel">
+        <span class="nav-num">13</span>
+        <span class="nav-label">SOC Triage & CTI Feeds</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="model-badge-card">
+        <div class="model-status-row">
+          <span class="status-dot ready"></span>
+          <span class="status-name" id="sidebar-model-name">LabelSpreading</span>
+        </div>
+        <div class="model-meta" id="sidebar-model-meta">RBF Graph + Sugeno Fuzzy</div>
+      </div>
+      <div class="passive-notice">
+        <small>🛡️ Passive Lexical Analysis. No website requests or DNS lookups performed.</small>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN VIEWPORT -->
+  <div class="main-viewport">
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="project-tag">SECURITY RESEARCH / ACADEMIC DEMONSTRATION</span>
+        <span id="demo-indicator" class="pill pill-warning">SYNTHETIC DEMO MODEL</span>
+      </div>
+      <div class="topbar-right">
+        <div id="training-badge" class="training-pill pill-idle">
+          <span class="dot"></span>
+          <span id="training-badge-text">Trainer Idle</span>
+        </div>
+        <button id="quick-demo-btn" class="btn btn-sm btn-secondary" title="Open Guided Demonstration">
+          📖 Guided Tour
+        </button>
+        <a href="/presentation" target="_blank" class="btn btn-sm btn-primary" title="Open Academic Project Defense Slide Deck">
+          🎓 Viva Slide Deck ↗
+        </a>
+        <button id="theme-toggle" class="icon-btn" title="Toggle Light/Dark Theme" aria-label="Toggle Theme">
+          <span id="theme-icon">☀️</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN SCROLLABLE CONTENT -->
+    <main class="content-area">
+
+      <!-- ======================================================== -->
+      <!-- SECTION 01: URL SCANNER (SINGLE & BATCH) -->
+      <!-- ======================================================== -->
+      <section id="scanner" class="app-section active">
+        <div class="section-hero">
+          <div class="hero-eyebrow">GRAPH MACHINE LEARNING + SUGENO FUZZY INFERENCE</div>
+          <h1 class="hero-title">Phishing Threat Analysis</h1>
+          <p class="hero-desc">Transform suspicious URLs into mathematically grounded, explainable risk assessments. Evaluate individual domains or batch triage hundreds of candidates in parallel.</p>
+        </div>
+
+        <!-- Scanner Mode Tabs -->
+        <div class="tabs-nav" role="tablist">
+          <button class="tab-btn active" id="tab-single-btn" role="tab" aria-selected="true">Single URL Analysis</button>
+          <button class="tab-btn" id="tab-batch-btn" role="tab" aria-selected="false">Batch & CSV Analysis</button>
+        </div>
+
+        <!-- SINGLE URL SCANNER TAB -->
+        <div class="tab-pane active" id="pane-single">
+          <div class="card card-hero-input">
+            <form id="scan-form">
+              <label for="url" class="field-label">Target Website URL</label>
+              <div class="input-action-row">
+                <input id="url" name="url" type="text" placeholder="https://secure-verify.wallet.account.test/login" maxlength="2048" required autocomplete="off" spellcheck="false" class="input-lg">
+                <button id="submit" type="submit" class="btn btn-primary btn-lg">
+                  <span class="btn-text">Analyze URL ↗</span>
+                </button>
+              </div>
+            </form>
+
+            <div class="exemplars-row">
+              <span class="exemplars-label">Quick test presets:</span>
+              <button type="button" class="btn-pill" data-example="https://cedar12.test/catalog/item/12">Ordinary E-commerce</button>
+              <button type="button" class="btn-pill" data-example="http://archive1.test/articles/1?page=2">Ambiguous HTTP Query</button>
+              <button type="button" class="btn-pill" data-example="http://secure-verify-9.wallet.account.test/login/password?update=9">Impersonation Kit</button>
+              <button type="button" class="btn-pill" data-example="https://trusted.test@verify-wallet-0.test/secure/login">Userinfo Spoofing</button>
+            </div>
+
+            <p class="fine mt-3">URL string properties only. Never connects to live servers, inspects HTML, or exposes local IP. Demo domains are synthetically generated.</p>
+            <div id="scan-error" class="alert alert-danger" hidden role="alert"></div>
+          </div>
+
+          <!-- SINGLE RESULT SUMMARY CONTAINER -->
+          <div id="result" class="result-container" hidden aria-live="polite">
+            <div class="card-header-bar">
+              <div>
+                <span class="eyebrow">VERDICT & EVIDENCE</span>
+                <h2 class="card-title">Analysis Assessment</h2>
+              </div>
+              <div class="action-btn-group">
+                <button class="btn btn-secondary btn-sm" id="download-current-pdf">Download PDF Report ↓</button>
+                <button class="btn btn-ghost btn-sm" id="download-current-json">JSON Snapshot ↓</button>
+              </div>
+            </div>
+
+            <!-- Score & Breakdown Grid -->
+            <div class="result-grid">
+              <article class="card score-card">
+                <span class="eyebrow">COMPOSITE RISK INDEX</span>
+                <div class="score-display">
+                  <span id="score" class="score-number">—</span>
+                  <span class="score-denom">/ 100</span>
+                </div>
+                <div class="verdict-row">
+                  <span id="verdict-badge" class="badge">Checking…</span>
+                </div>
+                <div class="host-pill" id="host">—</div>
+                <div id="limited-support-banner" class="alert alert-warning mt-3" hidden>
+                  ⚠️ <strong>Limited Model Support:</strong> This URL is distant from known training nodes. Review manually.
+                </div>
+                <p class="fine mt-2" id="notice"></p>
+              </article>
+
+              <article class="card breakdown-card">
+                <h3 class="card-subtitle">Tri-Evidence Breakdown</h3>
+                <div class="meter-block">
+                  <div class="meter-head">
+                    <span class="meter-title">Graph ML Proximity (LabelSpreading)</span>
+                    <strong id="graph-value" class="meter-val">0.0%</strong>
+                  </div>
+                  <div class="progress-bar-bg"><div id="graph-bar" class="progress-bar-fill fill-graph" style="width:0%"></div></div>
+                  <span class="fine">RBF kernel manifold similarity with training nodes</span>
+                </div>
+
+                <div class="meter-block mt-4">
+                  <div class="meter-head">
+                    <span class="meter-title">Lexical Warning Risk</span>
+                    <strong id="lexical-value" class="meter-val">0.0%</strong>
+                  </div>
+                  <div class="progress-bar-bg"><div id="lexical-bar" class="progress-bar-fill fill-lexical" style="width:0%"></div></div>
+                  <span class="fine">15 structural heuristics (length, subdomains, userinfo, keywords)</span>
+                </div>
+
+                <div class="signals-block mt-4">
+                  <span class="meter-title">Observed Warning Indicators:</span>
+                  <ul id="signals-list" class="signals-list mt-2"></ul>
+                </div>
+              </article>
+            </div>
+
+            <!-- Graph Neighborhood & Activated Rules Grid -->
+            <div class="result-grid mt-4">
+              <article class="card">
+                <div class="card-header-bar">
+                  <div>
+                    <span class="eyebrow">RBF MANIFOLD TOPOLOGY</span>
+                    <h3 class="card-subtitle">Local Similarity Neighborhood</h3>
+                  </div>
+                  <div class="graph-controls">
+                    <button type="button" class="btn btn-ghost btn-sm" id="result-zoom-in" title="Zoom in">+</button>
+                    <button type="button" class="btn btn-ghost btn-sm" id="result-zoom-out" title="Zoom out">−</button>
+                    <button type="button" class="btn btn-ghost btn-sm" id="result-zoom-reset" title="Reset view">⟲</button>
+                  </div>
+                </div>
+                <p class="fine">6 nearest training nodes connected by RBF kernel manifold affinity $W_{ij} = \exp(-\gamma \|x_i - x_j\|^2)$.</p>
+                <div class="graph-canvas-container mt-2">
+                  <svg id="result-graph" viewBox="0 0 520 320" role="img" aria-label="Query node connected to six similar training hosts"></svg>
+                </div>
+                <div id="result-neighbors" class="neighbors-list mt-3"></div>
+              </article>
+
+              <article class="card">
+                <span class="eyebrow">SUGENO FUZZY INFERENCE</span>
+                <h3 class="card-subtitle">Activated Fuzzy Rules</h3>
+                <p class="fine">Product AND ($\mu_{\text{Graph}} \times \mu_{\text{Lexical}}$) · Crisp consequent risk $z_k$.</p>
+                <div id="result-rules" class="rules-container mt-3"></div>
+
+                <details class="mt-4">
+                  <summary class="feature-toggle-summary" style="cursor:pointer; color:var(--accent);"><strong>Inspect all 15 extracted URL features ▾</strong></summary>
+                  <div class="table-scroll mt-2">
+                    <table class="data-table">
+                      <thead>
+                        <tr><th>Feature</th><th>Value</th><th>Rationale</th></tr>
+                      </thead>
+                      <tbody id="result-features-tbody"></tbody>
+                    </table>
+                  </div>
+                </details>
+              </article>
+            </div>
+          </div>
+        </div>
+
+        <!-- BATCH & CSV SCANNER TAB -->
+        <div class="tab-pane" id="pane-batch">
+          <div class="card">
+            <h3 class="card-title">Batch URL Triage</h3>
+            <p class="muted">Analyze multiple URLs in bulk. Paste a list of URLs or upload a plain CSV file (one URL per line or with a <code>url</code> header). Maximum 200 URLs per batch.</p>
+
+            <div class="batch-input-grid mt-4">
+              <div>
+                <label for="batch-textarea" class="field-label">Paste URLs (one per line):</label>
+                <textarea id="batch-textarea" class="input-area" rows="6" placeholder="https://cedar1.test&#10;https://secure-verify.wallet.account.test&#10;https://trusted.test@verify-wallet-0.test"></textarea>
+              </div>
+              <div class="csv-drop-zone" id="batch-drop-zone">
+                <div class="drop-icon">📄</div>
+                <strong>Drag & drop CSV file</strong>
+                <span class="fine">or browse your computer</span>
+                <input type="file" id="batch-file-input" accept=".csv,.txt" class="file-hidden">
+                <button type="button" class="btn btn-secondary btn-sm mt-2" id="batch-browse-btn">Select File</button>
+              </div>
+            </div>
+
+            <div class="batch-action-row mt-4">
+              <button id="batch-submit-btn" class="btn btn-primary">Start Batch Triage 🚀</button>
+              <button id="batch-clear-btn" class="btn btn-ghost">Clear</button>
+            </div>
+            <div id="batch-error" class="alert alert-danger mt-3" hidden></div>
+          </div>
+
+          <!-- BATCH RESULTS TABLE CONTAINER -->
+          <div id="batch-results-container" class="card mt-4" hidden>
+            <div class="card-header-bar">
+              <div>
+                <span class="eyebrow">BATCH PROCESSING COMPLETE</span>
+                <h3 class="card-title">Triage Results (<span id="batch-count-analyzed">0</span> items)</h3>
+              </div>
+              <div class="action-btn-group">
+                <button id="batch-export-csv" class="btn btn-secondary btn-sm">Export CSV ↓</button>
+                <button id="batch-export-pdf" class="btn btn-secondary btn-sm">Executive PDF ↓</button>
+                <button id="batch-export-json" class="btn btn-ghost btn-sm">JSON ↓</button>
+              </div>
+            </div>
+
+            <!-- Risk Distribution Summary Cards -->
+            <div class="batch-stats-grid mt-3">
+              <div class="stat-card stat-total">
+                <div class="stat-num" id="stat-batch-total">0</div>
+                <div class="stat-label">Total Processed</div>
+              </div>
+              <div class="stat-card stat-high">
+                <div class="stat-num" id="stat-batch-high">0</div>
+                <div class="stat-label">High Risk</div>
+              </div>
+              <div class="stat-card stat-review">
+                <div class="stat-num" id="stat-batch-review">0</div>
+                <div class="stat-label">Review Needed</div>
+              </div>
+              <div class="stat-card stat-low">
+                <div class="stat-num" id="stat-batch-low">0</div>
+                <div class="stat-label">Low Risk</div>
+              </div>
+            </div>
+
+            <!-- Filter & Search Controls -->
+            <div class="filter-bar mt-4">
+              <input type="text" id="batch-search" placeholder="Filter by host name…" class="input-sm search-input">
+              <select id="batch-risk-filter" class="select-sm">
+                <option value="all">All Verdicts</option>
+                <option value="High risk">High risk only</option>
+                <option value="Review needed">Review needed only</option>
+                <option value="Low risk">Low risk only</option>
+              </select>
+            </div>
+
+            <!-- Results Table -->
+            <div class="table-scroll mt-3">
+              <table class="data-table" id="batch-table">
+                <thead>
+                  <tr>
+                    <th>Host</th>
+                    <th>Risk Index</th>
+                    <th>Verdict</th>
+                    <th>Graph ML</th>
+                    <th>Lexical</th>
+                    <th>Top Warning</th>
+                  </tr>
+                </thead>
+                <tbody id="batch-tbody"></tbody>
+              </table>
+            </div>
+
+            <!-- Errors log if any -->
+            <div id="batch-errors-box" class="alert alert-warning mt-3" hidden>
+              <strong>Processing Warnings / Skipped Rows:</strong>
+              <ul id="batch-errors-list" class="mt-1"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- SECTION 02: INTERACTIVE GRAPH EXPLORER -->
+      <!-- ======================================================== -->
+      <section id="graph-view" class="app-section">
+        <div class="section-hero">
+          <div class="hero-eyebrow">TOPOLOGY & MANIFOLD LEARNING</div>
+          <h2 class="hero-title">Interactive Graph Explorer</h2>
+          <p class="hero-desc">Explore the local RBF neighborhood surrounding the evaluated URL. See how known phishing and benign seed nodes exchange label probabilities along the affinity graph.</p>
+        </div>
+
+        <div class="card graph-explorer-card">
+          <div class="graph-top-bar">
+            <div class="graph-legend">
+              <span class="legend-item"><span class="legend-dot dot-query"></span> Query Node</span>
+              <span class="legend-item"><span class="legend-dot dot-phish"></span> Phishing Seed</span>
+              <span class="legend-item"><span class="legend-dot dot-benign"></span> Benign Seed</span>
+              <span class="legend-item"><span class="legend-dot dot-unlabeled"></span> Unlabeled (Semi-supervised)</span>
+              <span class="legend-item"><span class="legend-line"></span> Edge Weight (RBF Similarity)</span>
+            </div>
+            <div class="graph-controls">
+              <button class="btn btn-ghost btn-sm" id="graph-zoom-in" title="Zoom in">+</button>
+              <button class="btn btn-ghost btn-sm" id="graph-zoom-out" title="Zoom out">−</button>
+              <button class="btn btn-ghost btn-sm" id="graph-zoom-reset" title="Reset view">⟲</button>
+            </div>
+          </div>
+
+          <!-- SVG Canvas -->
+          <div class="graph-canvas-container" id="graph-container">
+            <svg id="interactive-graph" viewBox="0 0 520 320" role="img" aria-label="Interactive Graph Explorer"></svg>
+          </div>
+
+          <!-- Inspector Details Card -->
+          <div class="node-inspector-card" id="node-inspector">
+            <div class="inspector-header">
+              <span class="eyebrow" id="inspector-type">NODE INSPECTOR</span>
+              <h4 id="inspector-host" class="inspector-title">Select any node on the graph</h4>
+            </div>
+            <div class="inspector-body" id="inspector-body">
+              <p class="fine">Click or hover over nodes or connection lines on the graph above to inspect distance metrics, RBF affinities, and semi-supervised label distributions.</p>
+            </div>
+          </div>
+
+          <div class="callout callout-info mt-4">
+            <strong>Theoretical Architecture Note:</strong>
+            <p class="fine mt-1">This visualization illustrates the active query's 6-nearest neighborhood subgraph extracted from the dense RBF similarity graph $W_{ij} = \exp(-\gamma \|x_i - x_j\|^2)$. In LabelSpreading, labels propagate iteratively through the normalized graph Laplacian matrix. It is <strong>graph-based semi-supervised machine learning</strong>, not a graph neural network (GCN).</p>
+          </div>
+
+          <!-- Spectral Graph Topology & Homophily Analytics -->
+          <div class="card mt-4">
+            <div class="card-header-bar">
+              <div>
+                <span class="eyebrow">GRAPH SPECTRAL THEORY & VALIDATION</span>
+                <h3 class="card-title">Spectral Manifold & Homophily Metrics</h3>
+              </div>
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-refresh-spectral">Compute Spectral Metrics 🔄</button>
+            </div>
+            <p class="fine mt-2">Rigorous graph theory measurements computed over the active model's RBF affinity matrix ($W_{ij}$). Validates whether the data manifold satisfies the cluster smoothness assumption.</p>
+
+            <div class="spectral-metrics-grid mt-3" id="spectral-metrics-container">
+              <div class="stat-card">
+                <div class="stat-num text-cyan" id="spectral-homophily">—</div>
+                <div class="stat-label">Graph Homophily Index (h)</div>
+                <span class="fine">Fraction of edges linking identical classes</span>
+              </div>
+              <div class="stat-card">
+                <div class="stat-num" id="spectral-clustering">—</div>
+                <div class="stat-label">Avg Clustering Coeff (C)</div>
+                <span class="fine">Local neighborhood triangle density</span>
+              </div>
+              <div class="stat-card">
+                <div class="stat-num" id="spectral-degree">—</div>
+                <div class="stat-label">Mean Degree (&lang;k&rang;)</div>
+                <span class="fine">Average node connectivity</span>
+              </div>
+              <div class="stat-card">
+                <div class="stat-num" id="spectral-trace">—</div>
+                <div class="stat-label">Laplacian Trace Tr(L)</div>
+                <span class="fine">Sum of normalized eigenvalues</span>
+              </div>
+            </div>
+
+            <div class="callout callout-info mt-3" id="spectral-explanation-box">
+              <strong>Manifold Cluster Assumption Validation:</strong>
+              <p class="fine mt-1" id="spectral-explanation-text">Click "Compute Spectral Metrics" above to evaluate graph homophily and Laplacian spectrum.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- SECTION 03: DETAILED EXPLAINABILITY -->
+      <!-- ======================================================== -->
+      <section id="explainability" class="app-section">
+        <div class="section-hero">
+          <div class="hero-eyebrow">TRANSPARENT DECISION SUPPORT</div>
+          <h2 class="hero-title">Explainability & Feature Rationale</h2>
+          <p class="hero-desc">Understand exactly how decisions are synthesized. Review each of the 15 extracted URL properties, active heuristic weights, and fuzzy rule firings.</p>
+        </div>
+
+        <div class="explainability-grid">
+          <!-- 15 Features Table with Explanations -->
+          <div class="card">
+            <h3 class="card-title">15 Extracted Lexical Features</h3>
+            <p class="fine">Deterministic string features computed without resolving or accessing external servers.</p>
+            <div class="table-scroll mt-3">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Feature</th>
+                    <th>Value</th>
+                    <th>Description & Rationale</th>
+                  </tr>
+                </thead>
+                <tbody id="features-tbody">
+                  <tr><td colspan="3" class="muted">Run an analysis above to inspect features.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Activated Rules & Heuristic Warnings -->
+          <div class="card">
+            <h3 class="card-title">Active Sugeno Fuzzy Rules</h3>
+            <p class="fine">Antecedent membership activations ($\mu_{\text{Graph}} \times \mu_{\text{Lexical}}$) and crisp consequent risks.</p>
+            <div id="explainability-rules-list" class="rules-container mt-3">
+              <p class="muted">No rules currently active. Analyze a URL to view activations.</p>
+            </div>
+
+            <div class="callout callout-warning mt-4">
+              <strong>Epistemic Uncertainty Notice:</strong>
+              <p class="fine mt-1">Heuristic weights and fuzzy membership rules are transparent expert approximations. They are not causal proof of malicious intent. Shortened URLs, internationalized domains, or unencrypted local networks can trigger warnings legitimately.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- SECTION 04: FUZZY LOGIC PLAYGROUND -->
+      <!-- ======================================================== -->
+      <section id="playground" class="app-section">
+        <div class="section-hero">
+          <div class="hero-eyebrow">INTERACTIVE SUGENO INFERENCE EXPERIMENTATION</div>
+          <h2 class="hero-title">Fuzzy Logic Playground</h2>
+          <p class="hero-desc">Simulate the Sugeno fuzzy inference engine in real time. Adjust the Graph ML and Lexical risk scores to explore how membership functions intersect and how rules combine to produce the composite verdict.</p>
+        </div>
+
+        <div class="playground-layout">
+          <!-- Input Sliders Card -->
+          <div class="card">
+            <h3 class="card-title">Simulated Score Inputs</h3>
+            <div class="slider-control mt-4">
+              <div class="slider-header">
+                <label for="play-graph" class="field-label">Graph ML Phishing Score ($x_1$):</label>
+                <span id="play-graph-val" class="slider-badge">50.0%</span>
+              </div>
+              <input type="range" id="play-graph" min="0" max="1" step="0.01" value="0.5" class="slider">
+              <span class="fine">Proximity to phishing clusters on the similarity manifold.</span>
+            </div>
+
+            <div class="slider-control mt-4">
+              <div class="slider-header">
+                <label for="play-lexical" class="field-label">Lexical Warning Risk ($x_2$):</label>
+                <span id="play-lexical-val" class="slider-badge">50.0%</span>
+              </div>
+              <input type="range" id="play-lexical" min="0" max="1" step="0.01" value="0.5" class="slider">
+              <span class="fine">Heuristic score from 15 URL structural indicators.</span>
+            </div>
+
+            <!-- Playground Preset Buttons -->
+            <div class="exemplars-row mt-4">
+              <span class="exemplars-label">Simulate attack scenarios:</span>
+              <button class="btn-pill" id="sim-zero-day">Zero-Day / Clean URL (High Graph, Low Lexical)</button>
+              <button class="btn-pill" id="sim-impersonation">Keyword Lure on New Host (Low Graph, High Lexical)</button>
+              <button class="btn-pill" id="sim-blatant">Flagrant Phishing (Both High)</button>
+              <button class="btn-pill" id="sim-benign">Typical Safe Domain (Both Low)</button>
+            </div>
+
+            <!-- Dynamic Output Preview -->
+            <div class="playground-output-box mt-4">
+              <span class="eyebrow">CALCULATED COMPOSITE OUTPUT</span>
+              <div class="score-display">
+                <span id="play-composite-score" class="score-number">50.0</span>
+                <span class="score-denom">/ 100</span>
+              </div>
+              <span id="play-composite-verdict" class="badge badge-review">Review needed</span>
+              <div class="formula-box mt-3">
+                <code>Risk = (Σ wᵢ · zᵢ) / (Σ wᵢ) = Weighted Sum / Total Activation</code>
+                <div id="play-math-breakdown" class="fine mt-1">Calculating…</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Membership Curves & Rule Grid -->
+          <div class="card">
+            <h3 class="card-title">Fuzzy Membership Functions $\mu(x)$</h3>
+            <p class="fine">Low ($\max(0, 1-2x)$), Medium ($\max(0, 1-|2x-1|)$), and High ($\max(0, 2x-1)$).</p>
+            <div class="canvas-wrap mt-3">
+              <canvas id="fuzzy-curves-canvas" width="460" height="180"></canvas>
+            </div>
+
+            <h3 class="card-title mt-4">3 × 3 Sugeno Rule Matrix</h3>
+            <p class="fine">Activated rules highlighted with their product AND weight ($w_i = \mu_{\text{Graph}} \times \mu_{\text{Lexical}}$).</p>
+            <div class="rule-matrix-grid mt-2" id="play-rule-matrix">
+              <!-- Dynamically rendered 3x3 table -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Fuzzy Rule Profile Studio & Tuner -->
+        <div class="card mt-4">
+          <div class="card-header-bar">
+            <div>
+              <span class="eyebrow">ADAPTIVE FUZZY INFERENCE TUNER</span>
+              <h3 class="card-title">Custom Sugeno Rule Matrix Studio</h3>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <select id="fuzzy-preset-select" class="select-sm">
+                <option value="balanced">Preset: Standard Balanced (Default)</option>
+                <option value="aggressive">Preset: Aggressive / Zero-Trust Defense</option>
+                <option value="conservative">Preset: High-Assurance / Low False-Positive</option>
+              </select>
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-save-fuzzy-profile">Apply Custom Rule Profile</button>
+            </div>
+          </div>
+          <p class="fine mt-2">Adjust the crisp consequent values (z_k ∈ [0.0, 1.0]) for each of the 9 Sugeno rules to simulate different organizational risk tolerances.</p>
+
+          <div class="table-scroll mt-3">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Graph ML Proximity \ Lexical Warning</th>
+                  <th>Lexical: Low</th>
+                  <th>Lexical: Medium</th>
+                  <th>Lexical: High</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Graph: Low</strong></td>
+                  <td><input type="number" step="0.05" min="0" max="1" id="rule-0-0" class="input-sm" style="width:90px;" value="0.05"></td>
+                  <td><input type="number" step="0.05" min="0" max="1" id="rule-0-1" class="input-sm" style="width:90px;" value="0.25"></td>
+                  <td><input type="number" step="0.05" min="0" max="1" id="rule-0-2" class="input-sm" style="width:90px;" value="0.55"></td>
+                </tr>
+                <tr>
+                  <td><strong>Graph: Medium</strong></td>
+                  <td><input type="number" step="0.05" min="0" max="1" id="rule-1-0" class="input-sm" style="width:90px;" value="0.30"></td>
+                  <td><input type="number" step="0.05" min="0" max="1" id="rule-1-1" class="input-sm" style="width:90px;" value="0.50"></td>
+                  <td><input type="number" step="0.05" min="0" max="1" id="rule-1-2" class="input-sm" style="width:90px;" value="0.75"></td>
+                </tr>
+                <tr>
+                  <td><strong>Graph: High</strong></td>
+                  <td><input type="number" step="0.05" min="0" max="1" id="rule-2-0" class="input-sm" style="width:90px;" value="0.65"></td>
+                  <td><input type="number" step="0.05" min="0" max="1" id="rule-2-1" class="input-sm" style="width:90px;" value="0.85"></td>
+                  <td><input type="number" step="0.05" min="0" max="1" id="rule-2-2" class="input-sm" style="width:90px;" value="0.95"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="fuzzy-profile-msg" class="fine text-cyan mt-2" hidden></div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- SECTION 05: MODEL EVALUATION & COMPARISON -->
+      <!-- ======================================================== -->
+      <section id="evaluation" class="app-section">
+        <div class="section-hero">
+          <div class="hero-eyebrow">HONEST BENCHMARKS & HOST-DISJOINT HOLDOUT</div>
+          <h2 class="hero-title">Model Evaluation Dashboard</h2>
+          <p class="hero-desc">Compare the performance of the Logistic Regression baseline, Graph ML (LabelSpreading), and the combined Graph + Fuzzy Logic pipeline on untouched test hosts.</p>
+        </div>
+
+        <!-- Evaluation Overview Card -->
+        <div class="card mb-4">
+          <div class="card-header-bar">
+            <div>
+              <span class="eyebrow">HOLDOUT EVALUATION REPORT</span>
+              <h3 class="card-title" id="eval-dataset-title">Evaluation Metrics</h3>
+            </div>
+            <span class="pill pill-warning" id="eval-synthetic-badge">Synthetic Test Data</span>
+          </div>
+          <p class="fine mt-2" id="eval-methodology-note">Loading methodology...</p>
+
+          <!-- Metrics Table -->
+          <div class="table-scroll mt-3">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Model Architecture</th>
+                  <th>Accuracy</th>
+                  <th>Precision</th>
+                  <th>Recall</th>
+                  <th>F1-Score</th>
+                  <th>ROC-AUC</th>
+                </tr>
+              </thead>
+              <tbody id="eval-metrics-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Confusion Matrices Visualizer -->
+        <div class="card">
+          <h3 class="card-title">Confusion Matrices (25% Held-Out Split)</h3>
+          <p class="fine">Classification performance at the binary evaluation threshold of 0.50.</p>
+          <div class="confusion-grid mt-3" id="confusion-matrices-container"></div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- SECTION 06: TRAINING & EXPERIMENT STUDIO -->
+      <!-- ======================================================== -->
+      <section id="training" class="app-section">
+        <div class="section-hero">
+          <div class="hero-eyebrow">ASYNCHRONOUS MODEL LIFECYCLE & REGISTRY</div>
+          <h2 class="hero-title">Training Studio & Experiments</h2>
+          <p class="hero-desc">Launch non-blocking background training jobs on synthetic or uploaded datasets. Tune RBF graph parameters, monitor live training logs, and switch active model versions with zero downtime.</p>
+        </div>
+
+        <div class="training-layout">
+          <!-- Job Configuration Card -->
+          <div class="card">
+            <h3 class="card-title">Configure & Launch Training</h3>
+            <form id="training-form" class="mt-3">
+              <div class="form-group">
+                <label for="train-dataset-select" class="field-label">Training Dataset:</label>
+                <select id="train-dataset-select" class="select-field"></select>
+              </div>
+
+              <div class="form-row mt-3">
+                <div class="form-group">
+                  <label for="train-gamma" class="field-label">RBF Gamma ($\gamma$):</label>
+                  <input type="number" id="train-gamma" value="0.08" step="0.01" min="0.01" max="1.0" class="input-field">
+                  <span class="fine">Affinity bandwidth parameter</span>
+                </div>
+                <div class="form-group">
+                  <label for="train-alpha" class="field-label">Alpha Clamping ($\alpha$):</label>
+                  <input type="number" id="train-alpha" value="0.2" step="0.05" min="0.05" max="0.95" class="input-field">
+                  <span class="fine">Label retention clamping factor</span>
+                </div>
+              </div>
+
+              <div class="form-row mt-3">
+                <div class="form-group">
+                  <label for="train-unlabel" class="field-label">Unlabeled Ratio (SSL):</label>
+                  <input type="number" id="train-unlabel" value="0.30" step="0.05" min="0.0" max="0.80" class="input-field">
+                  <span class="fine">Proportion of training labels masked</span>
+                </div>
+                <div class="form-group">
+                  <label for="train-seed" class="field-label">Random Seed:</label>
+                  <input type="number" id="train-seed" value="42" class="input-field">
+                  <span class="fine">Reproducibility seed</span>
+                </div>
+              </div>
+
+              <div class="form-group mt-3">
+                <label for="train-version" class="field-label">Custom Version Tag (optional):</label>
+                <input type="text" id="train-version" placeholder="e.g., v2-custom-rbf" class="input-field">
+              </div>
+
+              <button type="submit" id="train-start-btn" class="btn btn-primary btn-block mt-4">
+                Launch Training Job ⚙️
+              </button>
+            </form>
+          </div>
+
+          <!-- Live Log Terminal -->
+          <div class="card terminal-card">
+            <div class="terminal-header">
+              <span class="terminal-dot"></span>
+              <span class="terminal-title">Training Process Logs</span>
+              <span id="train-duration-badge" class="pill pill-idle">0.0s</span>
+            </div>
+            <pre class="terminal-body" id="train-log-stream">Waiting for training run to be initiated…</pre>
+          </div>
+        </div>
+
+        <!-- Experiments History Table -->
+        <div class="card mt-4">
+          <h3 class="card-title">Model Experiment Registry</h3>
+          <p class="fine">Review past training runs. Activate any completed experiment to immediately serve predictions without restarting.</p>
+          <div class="table-scroll mt-3">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Experiment ID</th>
+                  <th>Version</th>
+                  <th>Dataset</th>
+                  <th>Duration</th>
+                  <th>Accuracy</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="experiments-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- SECTION 07: DATASET MANAGEMENT -->
+      <!-- ======================================================== -->
+      <section id="datasets" class="app-section">
+        <div class="section-hero">
+          <div class="hero-eyebrow">STRICT VALIDATION & DOMAIN ISOLATION</div>
+          <h2 class="hero-title">Dataset Management</h2>
+          <p class="hero-desc">Import and validate custom labeled CSV datasets. Every upload is checked for syntax integrity, class balance, label conflicts, and hostname isolation.</p>
+        </div>
+
+        <div class="dataset-layout">
+          <!-- Upload Card -->
+          <div class="card">
+            <h3 class="card-title">Upload Labeled URL Dataset</h3>
+            <p class="fine">CSV format: <code>url,label</code> (0 = benign, 1 = phishing). Minimum 40 URLs with at least 3 distinct hostnames per class.</p>
+            <form id="dataset-upload-form" class="mt-3">
+              <div class="csv-drop-zone" id="dataset-drop-zone">
+                <div class="drop-icon">📁</div>
+                <strong>Select or drop labeled CSV</strong>
+                <input type="file" id="dataset-file-input" name="file" accept=".csv" class="file-hidden">
+                <button type="button" class="btn btn-secondary btn-sm mt-2" id="dataset-browse-btn">Browse Files</button>
+                <div id="dataset-chosen-name" class="fine mt-2 text-cyan"></div>
+              </div>
+
+              <div class="form-group mt-3">
+                <label for="dataset-note" class="field-label">Source / Provenance Description:</label>
+                <input type="text" id="dataset-note" name="source_note" placeholder="e.g. Curated benign Alexa top sites + PhishTank verified" class="input-field">
+              </div>
+
+              <button type="submit" id="dataset-upload-btn" class="btn btn-primary btn-block mt-3">
+                Validate & Register Dataset 📥
+              </button>
+            </form>
+
+            <div id="dataset-upload-error" class="alert alert-danger mt-3" hidden></div>
+            <div id="dataset-upload-success" class="alert alert-success mt-3" hidden></div>
+          </div>
+
+          <!-- Dataset Registry List -->
+          <div class="card">
+            <h3 class="card-title">Registered Datasets</h3>
+            <div class="table-scroll mt-3">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Dataset Name</th>
+                    <th>Valid URLs</th>
+                    <th>Class Ratio</th>
+                    <th>Provenance</th>
+                    <th>SHA-256</th>
+                  </tr>
+                </thead>
+                <tbody id="datasets-tbody"></tbody>
+              </table>
+            </div>
+
+            <div class="callout callout-info mt-4">
+              <strong>Data Leakage Prevention:</strong>
+              <p class="fine mt-1">PhishGraph enforces host-disjoint evaluation: holdout splits exclude training hostnames. However, in real-world scenarios, shared registrable domains or multi-tenant hosting (e.g. GitHub Pages) can still cause leakage. Never scrape or fetch URLs during validation.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- SECTION 08: SEARCHABLE ANALYSIS HISTORY -->
+      <!-- ======================================================== -->
+      <section id="history" class="app-section">
+        <div class="section-hero">
+          <div class="hero-eyebrow">PERSISTENT AUDIT TRAIL & PRIVACY SAFEGUARDS</div>
+          <h2 class="hero-title">Analysis History</h2>
+          <p class="hero-desc">Search, filter, and audit past scans. Retains only anonymized hostname summaries and score features; passwords, queries, and deep URL paths are strictly redacted.</p>
+        </div>
+
+        <div class="card">
+          <!-- Filter Controls -->
+          <div class="history-controls-bar">
+            <div class="history-filters-left">
+              <input type="text" id="history-search-input" placeholder="Search by hostname…" class="input-sm search-input">
+              <select id="history-verdict-select" class="select-sm">
+                <option value="all">All Verdicts</option>
+                <option value="High risk">High risk</option>
+                <option value="Review needed">Review needed</option>
+                <option value="Low risk">Low risk</option>
+              </select>
+              <select id="history-type-select" class="select-sm">
+                <option value="all">All Types</option>
+                <option value="single">Single scans</option>
+                <option value="batch">Batch scans</option>
+              </select>
+            </div>
+            <div class="history-actions-right">
+              <button id="clear-history-btn" class="btn btn-danger btn-sm">Clear History 🗑️</button>
+            </div>
+          </div>
+
+          <!-- History Table -->
+          <div class="table-scroll mt-3">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Host</th>
+                  <th>Risk Score</th>
+                  <th>Verdict</th>
+                  <th>Graph ML</th>
+                  <th>Lexical</th>
+                  <th>Model Version</th>
+                  <th>Timestamp (UTC)</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="history-tbody"></tbody>
+            </table>
+          </div>
+
+          <!-- Pagination Bar -->
+          <div class="pagination-bar mt-3">
+            <span class="fine" id="history-pagination-info">Showing 0-0 of 0</span>
+            <div class="pagination-buttons">
+              <button id="history-prev-page" class="btn btn-ghost btn-sm" disabled>← Previous</button>
+              <button id="history-next-page" class="btn btn-ghost btn-sm" disabled>Next →</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- SECTION 09: GUIDED DEMONSTRATION & VIVA PREPARATION -->
+      <!-- ======================================================== -->
+      <section id="guided-demo" class="app-section">
+        <div class="section-hero">
+          <div class="hero-eyebrow">PORTFOLIO PRESENTATION & ACADEMIC VIVA GUIDE</div>
+          <h2 class="hero-title">Guided Demonstration & Defense Notes</h2>
+          <p class="hero-desc">Curated threat exemplars, walkthrough of the 3-stage decision pipeline, security misconception analysis, and oral defense viva glossary.</p>
+        </div>
+
+        <!-- 3-Stage Pipeline Walkthrough -->
+        <div class="card mb-4">
+          <div class="card-header-bar">
+            <div>
+              <span class="eyebrow">METHODOLOGICAL FOUNDATION</span>
+              <h3 class="card-title">Three-Stage Inference Architecture</h3>
+            </div>
+          </div>
+          <div class="method-steps-grid mt-3">
+            <div class="method-step-card">
+              <span class="step-badge">STAGE 01</span>
+              <h4>Passive Lexical Extraction</h4>
+              <p class="fine mt-1">The URL string is canonicalized without outbound network requests. 15 numerical and structural features are extracted (host length, dot count, hyphens, entropy, @ userinfo, sensitive keywords).</p>
+            </div>
+            <div class="method-step-card">
+              <span class="step-badge">STAGE 02</span>
+              <h4>Semi-Supervised Graph ML</h4>
+              <p class="fine mt-1">Features are standardized and projected onto an RBF affinity graph. LabelSpreading propagates known label evidence along data density manifolds, capturing pattern clusters without deep training costs.</p>
+            </div>
+            <div class="method-step-card">
+              <span class="step-badge">STAGE 03</span>
+              <h4>Sugeno Fuzzy Synthesis</h4>
+              <p class="fine mt-1">Continuous graph proximity and lexical risk are mapped onto Low, Medium, and High fuzzy membership sets. Nine Sugeno rules compute a weighted-average composite risk index with clear auditability.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Curated Exemplars Showcase -->
+        <div class="card mb-4">
+          <h3 class="card-title">Curated Threat Scenarios for Review Demonstration</h3>
+          <p class="fine">Click any scenario below to immediately load it into the URL scanner and explore its graph connections and fuzzy inference:</p>
+          <div class="exemplar-cards-grid mt-3" id="demo-exemplars-grid"></div>
+        </div>
+
+        <!-- Common Security Misconceptions -->
+        <div class="card mb-4">
+          <h3 class="card-title">Security Misconceptions: What URL Analysis Does NOT Prove</h3>
+          <div class="misconceptions-grid mt-3">
+            <div class="callout callout-warning">
+              <strong>1. "HTTPS means the website is legitimate."</strong>
+              <p class="fine mt-1">HTTPS indicates encrypted transport (TLS), but free automated certificates (Let's Encrypt) mean over 80% of modern phishing domains use valid HTTPS. HTTPS is a lexical scheme feature, never proof of safety.</p>
+            </div>
+            <div class="callout callout-warning">
+              <strong>2. "Low risk score guarantees the website is safe."</strong>
+              <p class="fine mt-1">A low risk score simply indicates the absence of suspicious lexical heuristics and graph distance from known threat templates. Sophisticated spear-phishing or compromised reputable domains can evade lexical analysis entirely.</p>
+            </div>
+            <div class="callout callout-warning">
+              <strong>3. "Graph ML is identical to Deep Graph Neural Networks (GNN)."</strong>
+              <p class="fine mt-1">PhishGraph uses classical LabelSpreading with an RBF affinity matrix and normalized graph Laplacian. It does NOT use deep graph convolutional networks (GCN/GAT) or backpropagation.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Viva Terminology Glossary -->
+        <div class="card">
+          <h3 class="card-title">Academic Viva & Defense Glossary</h3>
+          <div class="glossary-list mt-3" id="demo-glossary-list"></div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- SECTION 10: ADVERSARIAL EVASION LAB (FEATURE UPGRADE) -->
+      <!-- ======================================================== -->
+      <section id="adversarial" class="app-section">
+        <div class="section-hero">
+          <div class="hero-eyebrow">DEFENSE ROBUSTNESS & EVASION SIMULATION</div>
+          <h2 class="hero-title">Adversarial Evasion Lab</h2>
+          <p class="hero-desc">Stress-test the Graph ML and fuzzy logic inference pipelines against automated adversarial mutations designed by threat actors to bypass perimeter filters.</p>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Simulate Multi-Vector Adversarial Perturbations</h3>
+          <p class="fine">Submit any candidate URL to generate 6 synthetic evasion mutations and measure model resilience.</p>
+          <div class="input-action-row mt-3">
+            <input type="text" id="adv-url-input" class="input-lg" placeholder="https://secure-verify.wallet.account.test/login" value="https://secure-verify.wallet.account.test/login">
+            <button type="button" id="btn-run-adv" class="btn btn-primary btn-lg">Run Evasion Tests ⚔️</button>
+          </div>
+        </div>
+
+        <!-- Adversarial Results Container -->
+        <div id="adv-results-container" class="card mt-4" hidden>
+          <div class="card-header-bar">
+            <div>
+              <span class="eyebrow">ROBUSTNESS AUDIT REPORT</span>
+              <h3 class="card-title">Perturbation Resilience Evaluation</h3>
+            </div>
+            <span id="adv-resilience-badge" class="badge badge-low">High Resilience</span>
+          </div>
+
+          <div class="batch-stats-grid mt-3">
+            <div class="stat-card">
+              <div class="stat-num text-cyan" id="adv-resilience-score">—</div>
+              <div class="stat-label">Resilience Index (0–100)</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num" id="adv-baseline-risk">—</div>
+              <div class="stat-label">Baseline Risk Score</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num" id="adv-mean-shift">—</div>
+              <div class="stat-label">Mean Perturbation Shift (Δ)</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num" id="adv-caught-ratio">—</div>
+              <div class="stat-label">Attacks Neutralized</div>
+            </div>
+          </div>
+
+          <div class="table-scroll mt-4">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Evasion Vector</th>
+                  <th>Category</th>
+                  <th>Mutated URL Candidate</th>
+                  <th>Mutated Risk</th>
+                  <th>Shift (Δ)</th>
+                  <th>Defense Status</th>
+                </tr>
+              </thead>
+              <tbody id="adv-simulations-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- SECTION 11: BRAND & HOMOGRAPH RADAR (FEATURE UPGRADE) -->
+      <!-- ======================================================== -->
+      <section id="brand-radar" class="app-section">
+        <div class="section-hero">
+          <div class="hero-eyebrow">TYPOSQUATTING & UNICODE CONFUSABLES</div>
+          <h2 class="hero-title">Brand Impersonation & Homograph Radar</h2>
+          <p class="hero-desc">Detect targeted spoofing of 35+ high-value global brands and inspect cross-script Internationalized Domain Name (IDN) homoglyphs.</p>
+        </div>
+
+        <div class="card mb-4">
+          <h3 class="card-title">Target Domain Inspector</h3>
+          <p class="fine">Analyze brand proximity (Jaro-Winkler + Levenshtein edit distance) and Unicode confusable scripts.</p>
+          <div class="input-action-row mt-3">
+            <input type="text" id="brand-url-input" class="input-lg" placeholder="https://paypa1-security.verify.test/login" value="https://paypa1-security.verify.test/login">
+            <button type="button" id="btn-run-brand" class="btn btn-primary btn-lg">Scan Brand Threats 🎯</button>
+          </div>
+          <div class="exemplars-row mt-3">
+            <span class="exemplars-label">Test homoglyph presets:</span>
+            <button type="button" class="btn-pill" data-brand-preset="https://paypa1-security.verify.test/login">Leet PayPal (paypa1)</button>
+            <button type="button" class="btn-pill" data-brand-preset="https://micros0ft-support.cloud.test/auth">Leet Microsoft (micros0ft)</button>
+            <button type="button" class="btn-pill" data-brand-preset="https://xn--pple-43d.com/recovery">Punycode Apple (xn--pple-43d.com)</button>
+            <button type="button" class="btn-pill" data-brand-preset="https://chase-bank-verify.test/online">Target Token Chase</button>
+          </div>
+        </div>
+
+        <!-- Brand & Homograph Result Cards -->
+        <div id="brand-results-container" class="explainability-grid" hidden>
+          <!-- Brand Impersonation Card -->
+          <div class="card">
+            <div class="card-header-bar">
+              <div>
+                <span class="eyebrow">BRAND IMPERSONATION RADAR</span>
+                <h3 class="card-title" id="brand-target-title">Target Match</h3>
+              </div>
+              <span id="brand-severity-badge" class="badge">Checking…</span>
+            </div>
+            <div id="brand-card-body" class="mt-3"></div>
+          </div>
+
+          <!-- Homograph & Punycode Card -->
+          <div class="card">
+            <div class="card-header-bar">
+              <div>
+                <span class="eyebrow">IDN HOMOGRAPH & CROSS-SCRIPT ANALYZER</span>
+                <h3 class="card-title">Unicode Confusables</h3>
+              </div>
+              <span id="homograph-severity-badge" class="badge">Clean</span>
+            </div>
+            <div id="homograph-card-body" class="mt-3"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- SECTION 12: CAMPAIGN CLUSTERING (FEATURE UPGRADE) -->
+      <!-- ======================================================== -->
+      <section id="campaigns" class="app-section">
+        <div class="section-hero">
+          <div class="hero-eyebrow">INFRASTRUCTURE GRAPH DISCOVERY</div>
+          <h2 class="hero-title">Campaign Kit Clustering</h2>
+          <p class="hero-desc">Discover synchronized phishing campaigns and shared kit infrastructures by clustering topological manifolds across batch analysis datasets.</p>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-header-bar">
+            <div>
+              <h3 class="card-title">Campaign Infrastructure Discovery</h3>
+              <p class="fine mt-1">Cluster recent historical scans or batch-processed URLs using pairwise RBF feature similarities.</p>
+            </div>
+            <button type="button" id="btn-run-clustering" class="btn btn-primary">Discover Threat Families 🔍</button>
+          </div>
+        </div>
+
+        <div id="campaigns-results-container" hidden>
+          <div class="batch-stats-grid mb-4">
+            <div class="stat-card">
+              <div class="stat-num text-cyan" id="stat-campaign-count">0</div>
+              <div class="stat-label">Campaign Families Discovered</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num" id="stat-campaign-clustered">0</div>
+              <div class="stat-label">Total URLs Fingerprinted</div>
+            </div>
+          </div>
+          <div class="exemplar-cards-grid" id="campaigns-grid"></div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- SECTION 13: SOC TRIAGE & THREAT INTEL (FEATURE UPGRADE) -->
+      <!-- ======================================================== -->
+      <section id="soc-intel" class="app-section">
+        <div class="section-hero">
+          <div class="hero-eyebrow">SECURITY OPERATIONS & CTI INTEGRATION</div>
+          <h2 class="hero-title">SOC Alert Triage & Threat Intelligence</h2>
+          <p class="hero-desc">Investigate alerts, assign analyst dispositions, export OASIS STIX 2.1 cyber observables, and generate perimeter firewall ACLs.</p>
+        </div>
+
+        <!-- SOC Alert Triage Queue -->
+        <div class="card mb-4">
+          <div class="card-header-bar">
+            <div>
+              <span class="eyebrow">ANALYST QUEUE</span>
+              <h3 class="card-title">Incident Investigation Queue</h3>
+            </div>
+            <div class="action-btn-group">
+              <button type="button" id="btn-export-stix" class="btn btn-secondary btn-sm">Export STIX 2.1 JSON ↓</button>
+              <button type="button" id="btn-export-openioc" class="btn btn-secondary btn-sm">Export OpenIOC XML ↓</button>
+            </div>
+          </div>
+
+          <div class="table-scroll mt-3">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Host</th>
+                  <th>Risk</th>
+                  <th>Verdict</th>
+                  <th>Triage Disposition</th>
+                  <th>Analyst Notes</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="soc-triage-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Interactive Incident Pack Modal / Card -->
+        <div id="soc-pack-card" class="card mb-4" hidden>
+          <div class="card-header-bar">
+            <div>
+              <span class="eyebrow">INCIDENT REMEDIATION PLAYBOOK</span>
+              <h3 class="card-title" id="soc-pack-host">example.com</h3>
+            </div>
+            <span id="soc-pack-priority" class="badge badge-high">P1 - Critical Containment</span>
+          </div>
+
+          <!-- MITRE ATT&CK Mapping -->
+          <h4 class="mt-4">MITRE ATT&CK Mapping</h4>
+          <div class="method-steps-grid mt-2" id="soc-mitre-grid"></div>
+
+          <!-- Perimeter Firewall Block Rules -->
+          <h4 class="mt-4">Perimeter Defense Signatures & ACLs</h4>
+          <p class="fine">Copy and deploy to enterprise network edge devices:</p>
+          <div class="card mt-2" style="background:var(--bg-base);">
+            <div class="fine"><strong>Suricata / Snort IDS Rule:</strong></div>
+            <code id="soc-rule-suricata" class="font-mono mt-1" style="display:block; word-break:break-all;"></code>
+            
+            <div class="fine mt-3"><strong>Linux iptables String Drop:</strong></div>
+            <code id="soc-rule-iptables" class="font-mono mt-1" style="display:block; white-space:pre-wrap;"></code>
+
+            <div class="fine mt-3"><strong>Cisco ASA / IOS ACL:</strong></div>
+            <code id="soc-rule-cisco" class="font-mono mt-1" style="display:block; white-space:pre-wrap;"></code>
+          </div>
+        </div>
+
+        <!-- Developer API & Signed Webhook Simulator -->
+        <div class="card">
+          <div class="card-header-bar">
+            <div>
+              <span class="eyebrow">SIEM & SOAR AUTOMATION</span>
+              <h3 class="card-title">Developer Webhook & API Studio</h3>
+            </div>
+            <button type="button" id="btn-dispatch-webhook" class="btn btn-primary btn-sm">Dispatch Simulated Webhook 🚀</button>
+          </div>
+          <p class="fine mt-2">Test automated dispatch of threat alerts signed with HMAC-SHA256 headers for Splunk, Sentinel, and webhook consumers.</p>
+
+          <div id="webhook-response-box" class="formula-box mt-3" hidden>
+            <div class="fine text-cyan"><strong>Webhook Dispatch Simulation Response:</strong></div>
+            <pre id="webhook-json-output" class="font-mono fine mt-2" style="max-height:220px; overflow-y:auto;"></pre>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- PAST SCAN DETAIL DRAWER / MODAL -->
+<div id="detail-drawer" class="modal-backdrop" style="display: none !important; pointer-events: none !important;" onclick="if(event.target===this){closeDrawer();}">
+  <div class="drawer-panel" onclick="event.stopPropagation();">
+    <div class="drawer-header">
+      <div>
+        <span class="eyebrow">HISTORICAL SCAN DETAIL</span>
+        <h3 id="drawer-host" class="card-title">Analysis Record</h3>
+      </div>
+      <button class="icon-btn" id="drawer-close-btn" type="button" onclick="closeDrawer()" title="Close details">&times;</button>
+    </div>
+    <div class="drawer-body" id="drawer-body"></div>
+    <div class="drawer-footer">
+      <button class="btn btn-secondary btn-sm" id="drawer-pdf-btn" type="button">Download PDF Report ↓</button>
+      <button class="btn btn-ghost btn-sm" id="drawer-close-bottom-btn" type="button" onclick="closeDrawer()">Close</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

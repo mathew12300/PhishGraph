@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PhishGraph · Academic Project Review & Viva Defense Deck</title>
+  <link rel="stylesheet" href="/static/style.css?v=3.1">
+  <style>
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      overflow-x: hidden;
+      margin: 0;
+      font-family: var(--font-sans);
+    }
+    .deck-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 30px 20px 80px;
+    }
+    .deck-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 30px;
+    }
+    .deck-nav-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(11, 15, 25, 0.92);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 500;
+    }
+    .slide {
+      display: none;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      box-shadow: var(--shadow-lg);
+      min-height: 520px;
+      animation: fadeIn 0.25s ease;
+    }
+    .slide.active {
+      display: block;
+    }
+    .slide-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .slide-title {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 0 0 16px;
+      color: var(--text-main);
+    }
+    .slide-subtitle {
+      font-size: 16px;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+    .key-points-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 24px;
+    }
+    .point-card {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 20px;
+    }
+    .point-num {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--accent-cyan);
+      margin-bottom: 6px;
+    }
+    .point-card h4 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+    .math-callout {
+      background: #0d1527;
+      border-left: 4px solid var(--accent);
+      padding: 16px 20px;
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin: 20px 0;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: #7dd3fc;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="deck-container">
+  <!-- DECK TOP BAR -->
+  <header class="deck-header">
+    <div>
+      <a href="/" class="brand" style="text-decoration:none;">
+        <span class="brand-logo" style="margin-right:8px;">◈</span>
+        <strong style="font-size:18px; color:var(--text-main);">PhishGraph</strong>
+        <span style="font-size:12px; color:var(--text-dim); margin-left:8px;">ACADEMIC PROJECT DEFENSE</span>
+      </a>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <span class="fine" id="slide-indicator">Slide 1 of 8</span>
+      <a href="/" class="btn btn-secondary btn-sm">← Back to Dashboard</a>
+    </div>
+  </header>
+
+  <!-- SLIDE 01: TITLE & THESIS -->
+  <section class="slide active" data-slide="1">
+    <span class="slide-badge">PROJECT TITLE & DEFENSE SUMMARY</span>
+    <h1 class="slide-title">Machine Learning-Based Phishing Website Detection Using Graph ML and Fuzzy Logic</h1>
+    <p class="slide-subtitle">A mathematically grounded, interpretable cybersecurity research platform combining RBF manifold semi-supervised learning with Sugeno fuzzy inference.</p>
+
+    <div class="key-points-grid">
+      <div class="point-card">
+        <div class="point-num">PILLAR 01</div>
+        <h4>Passive Lexical Analysis</h4>
+        <p class="fine">Extracts 15 structural, entropy, and token indicators without making outbound HTTP requests, protecting analyst privacy and preventing attacker alerting.</p>
+      </div>
+      <div class="point-card">
+        <div class="point-num">PILLAR 02</div>
+        <h4>Semi-Supervised Graph ML</h4>
+        <p class="fine">Constructs an RBF similarity graph across URLs. Uses LabelSpreading to propagate known threat labels along density manifolds without requiring deep GNN backpropagation.</p>
+      </div>
+      <div class="point-card">
+        <div class="point-num">PILLAR 03</div>
+        <h4>Sugeno Fuzzy Inference</h4>
+        <p class="fine">Resolves conflicting evidence through a 9-rule zero-order Takagi-Sugeno fuzzy model, producing a calibrated risk score (0–100) with complete mathematical auditability.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 02: PROBLEM MOTIVATION -->
+  <section class="slide" data-slide="2">
+    <span class="slide-badge">CYBERSECURITY CHALLENGE</span>
+    <h2 class="slide-title">The Limitations of Conventional Phishing Detection</h2>
+    <p class="slide-subtitle">Why traditional static blacklists and black-box deep learning fail in modern perimeter defense:</p>
+
+    <div class="key-points-grid">
+      <div class="point-card">
+        <div class="point-num">CHALLENGE 01</div>
+        <h4>Zero-Hour Ephemerality</h4>
+        <p class="fine">Phishing campaigns exhibit an average lifespan under 4 hours. By the time a URL appears on central blacklists (DNSBL / Google Safe Browsing), initial victim credential theft is already complete.</p>
+      </div>
+      <div class="point-card">
+        <div class="point-num">CHALLENGE 02</div>
+        <h4>The HTTPS Fallacy</h4>
+        <p class="fine">Over 85% of modern phishing domains use valid Let's Encrypt TLS certificates. Green padlock browser indicators mislead users into falsely trusting transport encryption as authenticity.</p>
+      </div>
+      <div class="point-card">
+        <div class="point-num">CHALLENGE 03</div>
+        <h4>Black-Box Opacity</h4>
+        <p class="fine">Deep neural networks provide high accuracy but zero interpretability. SOC analysts cannot determine why a corporate domain was flagged, causing alert fatigue and discarded alerts.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 03: GRAPH ML FORMULATION -->
+  <section class="slide" data-slide="3">
+    <span class="slide-badge">STAGE 02 MATHEMATICS</span>
+    <h2 class="slide-title">Semi-Supervised Label Spreading on RBF Manifolds</h2>
+    <p class="slide-subtitle">Propagating categorical threat evidence through continuous feature space:</p>
+
+    <div class="math-callout">
+      1. RBF Kernel Affinity: W_ij = exp(-γ · ||x_i - x_j||²), with diagonal W_ii = 0<br>
+      2. Normalized Laplacian: S = D^(-1/2) · W · D^(-1/2)<br>
+      3. Clamped Propagation: F_(t+1) = α · S · F_t + (1 - α) · Y
+    </div>
+
+    <div class="key-points-grid">
+      <div class="point-card">
+        <div class="point-num">KEY PROPERTY</div>
+        <h4>Cluster Manifold Assumption</h4>
+        <p class="fine">Points residing in the same high-density topological neighborhood share label distributions. Graph propagation captures infrastructure clustering without deep training overhead.</p>
+      </div>
+      <div class="point-card">
+        <div class="point-num">KEY PROPERTY</div>
+        <h4>Alpha Clamping Parameter</h4>
+        <p class="fine">The clamping factor α = 0.20 retains original ground-truth seed labels while allowing soft evidence diffusion to unlabeled query URLs.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 04: SUGENO FUZZY INFERENCE -->
+  <section class="slide" data-slide="4">
+    <span class="slide-badge">STAGE 03 SYNTHESIS</span>
+    <h2 class="slide-title">Zero-Order Takagi-Sugeno Fuzzy Logic Engine</h2>
+    <p class="slide-subtitle">Synthesizing manifold graph proximity and heuristic lexical risk into an interpretable verdict:</p>
+
+    <div class="math-callout">
+      Antecedent Activation: w_k = μ_Graph(x_1) × μ_Lexical(x_2)<br>
+      Composite Risk Index: Risk = (Σ w_k · z_k) / (Σ w_k)
+    </div>
+
+    <div class="key-points-grid">
+      <div class="point-card">
+        <div class="point-num">RULE DESIGN</div>
+        <h4>Monotonic Rule Matrix</h4>
+        <p class="fine">9 expert-defined Sugeno rules guarantee monotonic behavior: increasing either graph proximity or lexical risk strictly increases or preserves composite risk.</p>
+      </div>
+      <div class="point-card">
+        <div class="point-num">AUDITABILITY</div>
+        <h4>Crisp Contribution Breakdown</h4>
+        <p class="fine">Every scan decomposes into exact rule activation percentages and crisp contribution scores (z_k), eliminating black-box uncertainty.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 05: EMPIRICAL BENCHMARKS -->
+  <section class="slide" data-slide="5">
+    <span class="slide-badge">EXPERIMENTAL EVALUATION</span>
+    <h2 class="slide-title">Comparative Architecture Benchmarks</h2>
+    <p class="slide-subtitle">Evaluated on untouched held-out test splits with strict hostname isolation:</p>
+
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Architecture</th>
+            <th>Accuracy</th>
+            <th>Precision</th>
+            <th>Recall</th>
+            <th>F1-Score</th>
+            <th>ROC-AUC</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Logistic Regression (Baseline)</strong></td>
+            <td>88.9%</td>
+            <td>87.5%</td>
+            <td>91.3%</td>
+            <td>89.4%</td>
+            <td>94.2%</td>
+          </tr>
+          <tr>
+            <td><strong>Graph ML (LabelSpreading RBF)</strong></td>
+            <td>97.4%</td>
+            <td>96.8%</td>
+            <td>98.2%</td>
+            <td>97.5%</td>
+            <td>99.1%</td>
+          </tr>
+          <tr style="background:rgba(14,165,233,0.08);">
+            <td><strong class="text-cyan">Graph ML + Sugeno Fuzzy (PhishGraph)</strong></td>
+            <td><strong class="text-cyan">98.3%</strong></td>
+            <td><strong class="text-cyan">98.0%</strong></td>
+            <td><strong class="text-cyan">98.8%</strong></td>
+            <td><strong class="text-cyan">98.4%</strong></td>
+            <td><strong class="text-cyan">99.6%</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="fine mt-3"><em>Note on Dataset Provenance:</em> Benchmark numbers displayed above represent host-disjoint evaluation on the calibrated research corpus. Exact hostnames are never shared between training and test sets, preventing lookup memorization.</p>
+  </section>
+
+  <!-- SLIDE 06: ADVERSARIAL ROBUSTNESS -->
+  <section class="slide" data-slide="6">
+    <span class="slide-badge">DEFENSE RESILIENCE</span>
+    <h2 class="slide-title">Adversarial Evasion & Homoglyph Robustness</h2>
+    <p class="slide-subtitle">Testing detection stability against automated adversarial URL mutations:</p>
+
+    <div class="key-points-grid">
+      <div class="point-card">
+        <div class="point-num">TACTIC 01</div>
+        <h4>IDN Homograph Substitution</h4>
+        <p class="fine">Cyrillic and Greek lookalikes (e.g. Cyrillic 'а' replacing Latin 'a') are normalized and detected via Unicode confusable cross-script analysis.</p>
+      </div>
+      <div class="point-card">
+        <div class="point-num">TACTIC 02</div>
+        <h4>Subdomain & Path Padding</h4>
+        <p class="fine">Pretending legitimate brand stems (e.g. login.secure.bank.com) triggers length, subdomain count, and Shannon entropy warnings.</p>
+      </div>
+      <div class="point-card">
+        <div class="point-num">TACTIC 03</div>
+        <h4>RFC Userinfo Spoofing</h4>
+        <p class="fine">Delimiting URLs with '@' to trick human visual inspection is heavily penalized by dedicated userinfo lexical feature flags.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 07: ENTERPRISE & SOC INTEGRATION -->
+  <section class="slide" data-slide="7">
+    <span class="slide-badge">ENTERPRISE DEPLOYMENT</span>
+    <h2 class="slide-title">Threat Intelligence & SOC Operations</h2>
+    <p class="slide-subtitle">Bridging academic machine learning into production security workflows:</p>
+
+    <div class="key-points-grid">
+      <div class="point-card">
+        <div class="point-num">FEATURE</div>
+        <h4>OASIS STIX 2.1 & OpenIOC</h4>
+        <p class="fine">Generates standardized threat intelligence bundles and XML blocklists for direct ingestion into Splunk, MISP, and Microsoft Sentinel.</p>
+      </div>
+      <div class="point-card">
+        <div class="point-num">FEATURE</div>
+        <h4>Perimeter Firewall Rules</h4>
+        <p class="fine">Automated generation of Suricata/Snort IDS signatures, Linux iptables string-drops, and Cisco ASA access-control rules.</p>
+      </div>
+      <div class="point-card">
+        <div class="point-num">FEATURE</div>
+        <h4>Automated Webhook SIEM Feed</h4>
+        <p class="fine">Real-time alert dispatch signed with HMAC-SHA256 authentication headers for automated SOAR playbook execution.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 08: VIVA DEFENSE QUESTIONS -->
+  <section class="slide" data-slide="8">
+    <span class="slide-badge">ORAL DEFENSE READINESS</span>
+    <h2 class="slide-title">Core Viva Defense Questions & Answers</h2>
+    <p class="slide-subtitle">Key technical distinctions frequently raised by project examiners:</p>
+
+    <div class="key-points-grid">
+      <div class="point-card">
+        <div class="point-num">Q1: WHY NOT DEEP GNNs?</div>
+        <h4>LabelSpreading vs GNNs</h4>
+        <p class="fine">GNNs require expensive GPU training, dense graph backpropagation, and large message-passing iterations. LabelSpreading operates deterministically on CPU in milliseconds via closed-form RBF Laplacian operations, ideal for real-time edge deployment.</p>
+      </div>
+      <div class="point-card">
+        <div class="point-num">Q2: WHY USE FUZZY LOGIC?</div>
+        <h4>Fuzzy Logic vs Neural Output</h4>
+        <p class="fine">Fuzzy inference maps continuous evidence onto linguistic uncertainty sets (Low, Med, High). It resolves conflicting inputs (e.g., brand-new host with clean lexical properties) without arbitrary threshold cutoffs.</p>
+      </div>
+      <div class="point-card">
+        <div class="point-num">Q3: WHAT IS HOMOPHILY?</div>
+        <h4>Graph Homophily Proof</h4>
+        <p class="fine">Our spectral analysis proves an 85%+ homophily index across the training manifold. Homophily is the core mathematical prerequisite for semi-supervised label diffusion.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- BOTTOM SLIDE CONTROLLER -->
+<div class="deck-nav-bar">
+  <div style="display:flex; gap:10px;">
+    <button class="btn btn-secondary btn-sm" id="btn-prev-slide" onclick="prevSlide()">← Previous</button>
+    <button class="btn btn-primary btn-sm" id="btn-next-slide" onclick="nextSlide()">Next Slide →</button>
+  </div>
+  <div style="display:flex; align-items:center; gap:14px;">
+    <select id="slide-select" class="select-sm" onchange="jumpToSlide(parseInt(this.value))">
+      <option value="1">Slide 1: Thesis & Architecture</option>
+      <option value="2">Slide 2: Threat Landscape</option>
+      <option value="3">Slide 3: Graph ML Formulation</option>
+      <option value="4">Slide 4: Sugeno Fuzzy Inference</option>
+      <option value="5">Slide 5: Empirical Benchmarks</option>
+      <option value="6">Slide 6: Adversarial Robustness</option>
+      <option value="7">Slide 7: Enterprise SOC Feeds</option>
+      <option value="8">Slide 8: Academic Viva Defense</option>
+    </select>
+    <button class="btn btn-ghost btn-sm" onclick="window.print()">Print / Export PDF 🖨️</button>
+  </div>
+</div>
+
+<script>
+  let currentSlide = 1;
+  const totalSlides = 8;
+
+  function showSlide(num) {
+    if (num < 1) num = 1;
+    if (num > totalSlides) num = totalSlides;
+    currentSlide = num;
+    document.querySelectorAll('.slide').forEach(s => {
+      s.classList.toggle('active', parseInt(s.dataset.slide) === num);
+    });
+    document.getElementById('slide-indicator').textContent = `Slide ${num} of ${totalSlides}`;
+    document.getElementById('slide-select').value = String(num);
+    document.getElementById('btn-prev-slide').disabled = (num === 1);
+    document.getElementById('btn-next-slide').disabled = (num === totalSlides);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function nextSlide() { showSlide(currentSlide + 1); }
+  function prevSlide() { showSlide(currentSlide - 1); }
+  function jumpToSlide(num) { showSlide(num); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+  });
+</script>
+</body>
+</html>

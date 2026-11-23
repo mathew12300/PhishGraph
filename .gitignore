@@ -1,0 +1,31 @@
+# Python virtual environments & bytecode
+.venv/
+env/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# SQLite databases & runtime instances
+instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# Model artifacts & experiment weights (train.py --demo rebuilds locally)
+artifacts/*.joblib
+artifacts/experiments/*
+!artifacts/experiments/.gitkeep
+!artifacts/metrics.json
+
+# Uploaded custom datasets
+data/private*
+data/datasets/*
+!data/datasets/.gitkeep
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
