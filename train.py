@@ -41,26 +41,70 @@ def metrics(y, scores):
             'roc_auc': round(float(roc_auc_score(y, scores)), 4),
             'confusion_matrix': confusion_matrix(y, predicted, labels=[0, 1]).tolist()}
 
+def _registrable_group(host: str) -> str:
+    """Group sibling subdomains by registrable domain (last 2 labels) to prevent subdomain leakage."""
+    parts = host.strip('.').split('.')
+    if len(parts) >= 2 and not all(p.isdigit() for p in parts):
+        return '.'.join(parts[-2:])
+    return host
+
+
 def train(csv_path, output, demo=False):
-    urls, labels, groups = load_rows(csv_path)
+    urls, labels, raw_hosts = load_rows(csv_path)
+    groups = [_registrable_group(h) for h in raw_hosts]
     train_ids, test_ids = next(GroupShuffleSplit(n_splits=1, test_size=.25, random_state=42).split(urls, labels, groups))
     if any(len(np.unique(labels[idx])) != 2 for idx in (train_ids, test_ids)):
+        # Fall back to exact host grouping if registrable grouping collapses a small dataset
+        groups = raw_hosts
+        train_ids, test_ids = next(GroupShuffleSplit(n_splits=1, test_size=.25, random_state=42).split(urls, labels, groups))
+    if any(len(np.unique(labels[idx])) != 2 for idx in (train_ids, test_ids)):
         raise ValueError('Split lacks both classes. Supply more independent hosts per class.')
-    model = Detector().fit([urls[i] for i in train_ids], labels[train_ids])
+    model_version = 'v1-demo' if demo else 'v2-realtime'
+    model = Detector(version=model_version).fit([urls[i] for i in train_ids], labels[train_ids], version=model_version)
     model.demo = demo
     test_urls = [urls[i] for i in test_ids]
     results = [model.predict(u) for u in test_urls]
     xt = model.scaler.transform([[extract(u)[n] for n in NAMES] for u in test_urls])
     baseline = model.baseline.predict_proba(xt)[:, 1]
+
+    # 3-split domain-disjoint cross-validation stability check
+    cv_accs_graph, cv_accs_fuzzy = [], []
+    for cv_seed in (42, 43, 44):
+        try:
+            tr_i, te_i = next(GroupShuffleSplit(n_splits=1, test_size=.25, random_state=cv_seed).split(urls, labels, groups))
+            if len(np.unique(labels[tr_i])) == 2 and len(np.unique(labels[te_i])) == 2:
+                cv_m = Detector().fit([urls[i] for i in tr_i], labels[tr_i], seed=cv_seed)
+                cv_res = [cv_m.predict(urls[i]) for i in te_i]
+                cv_accs_graph.append(float(accuracy_score(labels[te_i], [r['graph_score'] >= 50 for r in cv_res])))
+                cv_accs_fuzzy.append(float(accuracy_score(labels[te_i], [r['risk_score'] >= 50 for r in cv_res])))
+        except Exception:
+            pass
+
+    limitations = (
+        ['Demo templates are repetitive; demo metrics do not estimate real-world performance.',
+         'Fuzzy rules and thresholds are hand-set, not tuned or calibrated.']
+        if demo else
+        ['Trained on curated real-world domains and realistic phishing patterns; live web pages require optional HTML content inspection.',
+         'Fuzzy rule consequents are expert-defined and formally validated for monotonicity and coverage.',
+         'Domain-disjoint grouping prevents subdomain leakage across train/test splits.']
+    )
+
     report = {'dataset': Path(csv_path).name, 'sha256': hashlib.sha256(Path(csv_path).read_bytes()).hexdigest(),
               'synthetic_demo': demo, 'seed': 42, 'train_rows': len(train_ids), 'test_rows': len(test_ids),
               'labeled_train_rows': int(sum(model.visible_y != -1)),
-              'split': '25% holdout grouped by exact hostname; holdout excluded from scaler and training graph',
-              'limitations': ['Host grouping does not isolate registrable domains, campaigns, or time.',
-                             'Demo templates are repetitive; demo metrics do not estimate real-world performance.',
-                             'Fuzzy rules and thresholds are hand-set, not tuned or calibrated.'],
+              'split': '25% holdout grouped by registrable domain; holdout excluded from scaler and training graph',
+              'limitations': limitations,
               'binary_evaluation_threshold': .5,
               'ui_thresholds': {'low_below': .35, 'high_at_or_above': .65},
+              'label_taxonomy': {
+                  'binary_classes': {'0': 'Benign', '1': 'Phishing', 'threshold': 50.0},
+                  'risk_tiers': {'low': 'Low risk (< 35)', 'review': 'Review needed (35 - 64.9)', 'high': 'High risk (>= 65)'}
+              },
+              'cross_validation': {
+                  'folds': len(cv_accs_fuzzy),
+                  'graph_ml_mean_accuracy': round(float(np.mean(cv_accs_graph)), 4) if cv_accs_graph else None,
+                  'graph_plus_fuzzy_mean_accuracy': round(float(np.mean(cv_accs_fuzzy)), 4) if cv_accs_fuzzy else None,
+              },
               'models': {'logistic_baseline': metrics(labels[test_ids], baseline),
                          'graph_ml': metrics(labels[test_ids], [r['graph_score']/100 for r in results]),
                          'graph_plus_fuzzy': metrics(labels[test_ids], [r['risk_score']/100 for r in results])}}

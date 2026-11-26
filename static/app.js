@@ -314,6 +314,18 @@ function renderSingleResult(res) {
     res.verdict === 'Review needed' ? 'badge-review' : 'badge-low'
   );
 
+  const classPill = $('predicted-class-pill');
+  if (classPill) {
+    const cls = res.predicted_class || (res.risk_score >= 50 ? 'Phishing' : 'Benign');
+    classPill.textContent = `Class: ${cls}`;
+    classPill.className = 'pill ' + (cls === 'Phishing' ? 'badge-high' : 'badge-low');
+  }
+
+  const expEl = $('result-explanation');
+  if (expEl) expEl.textContent = res.explanation_summary || '';
+  const explainBox = $('explain-narrative-box');
+  if (explainBox) explainBox.textContent = res.explanation_summary || '';
+
   $('notice').textContent = res.notice;
   $('limited-support-banner').hidden = !res.limited_support;
 
@@ -1566,6 +1578,110 @@ function initFuzzyProfileTuner() {
       }
     });
   }
+
+  const validateBtn = $('btn-validate-fuzzy-rules');
+  if (validateBtn) {
+    validateBtn.addEventListener('click', async () => {
+      const matrix = [];
+      for (let i = 0; i < 3; i++) {
+        const row = [];
+        for (let j = 0; j < 3; j++) {
+          row.push(parseFloat($(`rule-${i}-${j}`)?.value || 0.5));
+        }
+        matrix.push(row);
+      }
+      const box = $('fuzzy-validation-box');
+      try {
+        const res = await fetch('/api/fuzzy/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ consequents: matrix })
+        });
+        const data = await res.json();
+        if (box) {
+          const checksHtml = Object.entries(data.checks || {}).map(([k, v]) =>
+            `<div>${v ? '✓' : '✗'} ${escapeHtml(k.replace(/_/g, ' '))}: <strong>${v ? 'PASS' : 'FAIL'}</strong></div>`
+          ).join('');
+          const errHtml = (data.errors || []).length
+            ? `<div class="mt-2" style="color:var(--risk-high);"><strong>Errors:</strong> ${escapeHtml(data.errors.join(' | '))}</div>`
+            : '';
+          box.innerHTML = `<strong>${data.valid ? '✓ Sugeno Rule Base Validated' : '✗ Sugeno Rule Validation Failed'}</strong><div class="mt-2">${checksHtml}</div>${errHtml}`;
+          box.hidden = false;
+        }
+      } catch (err) {
+        if (box) {
+          box.textContent = 'Validation request failed: ' + err.message;
+          box.hidden = false;
+        }
+      }
+    });
+  }
+}
+
+function initContentAnalyzer() {
+  const fetchBtn = $('btn-fetch-content');
+  const pasteBtn = $('btn-analyze-pasted-html');
+
+  const runContentCheck = async payload => {
+    const errBox = $('content-error');
+    const resBox = $('content-results');
+    if (errBox) errBox.hidden = true;
+    try {
+      const data = await api('/api/content/analyze', { method: 'POST', body: payload });
+      if (resBox) resBox.hidden = false;
+      if ($('content-score')) $('content-score').textContent = `${data.content_risk_score.toFixed(1)} / 100`;
+      if ($('content-title')) $('content-title').textContent = data.page_title || '(No title)';
+      const badge = $('content-verdict-badge');
+      if (badge) {
+        badge.textContent = data.content_verdict;
+        badge.className = 'badge ' + (
+          data.content_verdict === 'High risk' ? 'badge-high' :
+          data.content_verdict === 'Review needed' ? 'badge-review' : 'badge-low'
+        );
+      }
+      const list = $('content-signals-list');
+      if (list) {
+        list.innerHTML = '';
+        if (data.signals && data.signals.length) {
+          data.signals.forEach(s => {
+            const li = document.createElement('li');
+            li.innerHTML = `<span>- ${escapeHtml(s.signal)}</span> <strong class="fine">+${s.weight}</strong>`;
+            list.appendChild(li);
+          });
+        } else {
+          list.innerHTML = '<li class="muted">No suspicious HTML/DOM phishing signals detected.</li>';
+        }
+      }
+    } catch (err) {
+      if (errBox) {
+        errBox.textContent = err.message;
+        errBox.hidden = false;
+      }
+    }
+  };
+
+  if (fetchBtn) {
+    fetchBtn.addEventListener('click', async () => {
+      fetchBtn.disabled = true;
+      fetchBtn.textContent = 'Inspecting HTML…';
+      try {
+        await runContentCheck({ url: $('url')?.value || '', fetch_live: true });
+      } finally {
+        fetchBtn.disabled = false;
+        fetchBtn.textContent = 'Inspect Live Page HTML (SSRF-Safe)';
+      }
+    });
+  }
+
+  if (pasteBtn) {
+    pasteBtn.addEventListener('click', () => {
+      runContentCheck({
+        url: $('url')?.value || '',
+        html: $('content-html-input')?.value || '',
+        fetch_live: false
+      });
+    });
+  }
 }
 
 // ============================================================================
@@ -1971,11 +2087,12 @@ document.addEventListener('DOMContentLoaded', () => {
   loadMetrics();
   initSpectralAnalytics();
   initFuzzyProfileTuner();
+  initContentAnalyzer();
   initAdversarialLab();
   initBrandRadar();
   initCampaignClustering();
   initSocThreatIntel();
 
-  // Execute silent scan of demo URL on startup so dashboard opens fully populated
-  executeScan('https://cedar12.test/catalog/item/12', false, true);
+  // Execute silent scan of real-world URL on startup so dashboard opens fully populated
+  executeScan('https://instagram.com', false, true);
 });

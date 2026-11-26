@@ -51,12 +51,14 @@ class ProjectTests(unittest.TestCase):
 
     def test_split_and_artifact(self):
         from sklearn.model_selection import GroupShuffleSplit
-        urls, labels, groups = load_rows(self.csv)
-        a,b = next(GroupShuffleSplit(n_splits=1,test_size=.25,random_state=42).split(urls,labels,groups))
+        from train import _registrable_group
+        urls, labels, raw_hosts = load_rows(self.csv)
+        groups = [_registrable_group(h) for h in raw_hosts]
+        a, b = next(GroupShuffleSplit(n_splits=1, test_size=.25, random_state=42).split(urls, labels, groups))
         self.assertFalse(set(groups[i] for i in a) & set(groups[i] for i in b))
         self.assertEqual(self.model.x.shape[0], len(a))
-        self.assertEqual(set(self.model.visible_y), {-1,0,1})
-        self.assertEqual(set(self.model.hosts), set(groups[i] for i in a))
+        self.assertEqual(set(self.model.visible_y), {-1, 0, 1})
+        self.assertEqual(set(self.model.hosts), set(raw_hosts[i] for i in a))
         r = self.model.predict('https://example.test')
         self.assertTrue(0 <= r['risk_score'] <= 100)
         self.assertTrue(r['demo'])

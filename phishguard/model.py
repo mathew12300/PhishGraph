@@ -16,7 +16,7 @@ from sklearn.semi_supervised import LabelSpreading
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from .features import NAMES, FEATURE_INFO, extract, parse_url, lexical_risk
-from .fuzzy import infer, verdict
+from .fuzzy import infer, verdict, binary_class
 
 class Detector:
     def __init__(self, version='v1-demo'):
@@ -140,12 +140,36 @@ class Detector:
                 'rationale': meta['rationale']
             }
 
+        top_rule = max(rules, key=lambda r: r['activation']) if rules else None
+        top_neighbor = neighbors[0] if neighbors else None
+        signal_names = ', '.join(s['signal'] for s in signals[:3]) if signals else 'no lexical warning signals'
+        neighbor_desc = (
+            f"closest training node '{top_neighbor['host']}' (similarity {top_neighbor['similarity']:.2f}, {top_neighbor['seed_status']})"
+            if top_neighbor else 'no nearby training nodes'
+        )
+        rule_desc = (
+            f"dominated by rule '{top_rule['rule']}' (activation {top_rule['activation']:.2f}, consequent {top_rule['consequent']:.2f})"
+            if top_rule else 'using baseline fuzzy defaults'
+        )
+        support_note = (
+            ' Warning: URL is distant from training data (limited model support).'
+            if is_limited_support else ''
+        )
+        explanation_summary = (
+            f"Composite risk is {round(score * 100, 1)}/100 ({verdict(score)}; binary class: {binary_class(score)}). "
+            f"Graph ML scored {round(p * 100, 1)}% based on {neighbor_desc}. "
+            f"Lexical analysis scored {round(lexical * 100, 1)}% ({signal_names}). "
+            f"Sugeno inference combined both inputs, {rule_desc}.{support_note}"
+        )
+
         return {
             'host': host,
             'risk_score': round(score * 100, 2),
             'verdict': verdict(score),
+            'predicted_class': binary_class(score),
             'graph_score': round(p * 100, 2),
             'lexical_score': round(lexical * 100, 2),
+            'explanation_summary': explanation_summary,
             'features': f,
             'feature_breakdown': feature_breakdown,
             'signals': signals,
@@ -163,7 +187,7 @@ class Detector:
             'min_distance': round(min_dist, 3),
             'notice': ('Synthetic demo model; scores are not calibrated probabilities. URL text only; low risk does not establish safety.'
                        if getattr(self, 'demo', True) else
-                       'Experimental model; scores are not calibrated probabilities. URL text only; low risk does not establish safety.')
+                       'Trained on real-world URL dataset; scores are uncalibrated risk indices. Low risk does not guarantee safety.')
         }
 
     def batch_predict(self, urls, max_batch=200):

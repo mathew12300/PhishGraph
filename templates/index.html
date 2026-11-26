@@ -163,13 +163,15 @@
                   <span id="score" class="score-number">—</span>
                   <span class="score-denom">/ 100</span>
                 </div>
-                <div class="verdict-row">
+                <div class="verdict-row" style="display:flex; gap:8px; justify-content:center; align-items:center; flex-wrap:wrap;">
                   <span id="verdict-badge" class="badge">Checking…</span>
+                  <span id="predicted-class-pill" class="pill">—</span>
                 </div>
                 <div class="host-pill" id="host">—</div>
                 <div id="limited-support-banner" class="alert alert-warning mt-3" hidden>
                   ⚠️ <strong>Limited Model Support:</strong> This URL is distant from known training nodes. Review manually.
                 </div>
+                <p class="fine mt-2" id="result-explanation" style="text-align:left;"></p>
                 <p class="fine mt-2" id="notice"></p>
               </article>
 
@@ -239,6 +241,40 @@
                   </div>
                 </details>
               </article>
+            </div>
+
+            <!-- WEBSITE CONTENT ANALYSIS (SAFE STATIC HTML/DOM INSPECTOR) -->
+            <div class="card mt-4" id="content-analysis-card">
+              <div class="card-header-bar">
+                <div>
+                  <span class="eyebrow">OPTIONAL PAGE DOM INSPECTION</span>
+                  <h3 class="card-title">Website Content Analysis</h3>
+                </div>
+                <div class="action-btn-group">
+                  <button type="button" class="btn btn-secondary btn-sm" id="btn-fetch-content">Inspect Live Page HTML (SSRF-Safe)</button>
+                </div>
+              </div>
+              <p class="fine">Inspect static HTML signals (password forms, external form actions, hidden iframes, meta-refresh redirects, title-domain mismatch, and obfuscated JS) without executing scripts.</p>
+
+              <details class="mt-3">
+                <summary class="feature-toggle-summary" style="cursor:pointer; color:var(--accent);"><strong>Or paste raw HTML source code offline ▾</strong></summary>
+                <div class="mt-2">
+                  <textarea id="content-html-input" class="input-area" rows="4" placeholder="<title>PayPal Login</title><form action='https://evil.test/steal'><input type='password'></form>"></textarea>
+                  <button type="button" class="btn btn-primary btn-sm mt-2" id="btn-analyze-pasted-html">Analyze Pasted HTML</button>
+                </div>
+              </details>
+
+              <div id="content-error" class="alert alert-danger mt-3" hidden></div>
+              <div id="content-results" class="mt-3" hidden>
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                  <div>
+                    <span class="eyebrow">DOM CONTENT RISK</span>
+                    <div class="mt-1"><strong id="content-score">—</strong> · <span id="content-verdict-badge" class="badge">—</span></div>
+                  </div>
+                  <div class="fine text-muted">Page Title: <strong id="content-title">—</strong></div>
+                </div>
+                <ul id="content-signals-list" class="signals-list mt-3"></ul>
+              </div>
             </div>
           </div>
         </div>
@@ -440,6 +476,11 @@
           <p class="hero-desc">Understand exactly how decisions are synthesized. Review each of the 15 extracted URL properties, active heuristic weights, and fuzzy rule firings.</p>
         </div>
 
+        <div class="card mb-4" id="explain-narrative-card">
+          <span class="eyebrow">RISK SCORE NARRATIVE EXPLANATION</span>
+          <p id="explain-narrative-box" class="mt-2" style="line-height:1.6;">Run a URL scan to view the complete plain-English decision narrative.</p>
+        </div>
+
         <div class="explainability-grid">
           <!-- 15 Features Table with Explanations -->
           <div class="card">
@@ -562,6 +603,7 @@
                 <option value="aggressive">Preset: Aggressive / Zero-Trust Defense</option>
                 <option value="conservative">Preset: High-Assurance / Low False-Positive</option>
               </select>
+              <button type="button" class="btn btn-ghost btn-sm" id="btn-validate-fuzzy-rules">Validate Rules ✓</button>
               <button type="button" class="btn btn-secondary btn-sm" id="btn-save-fuzzy-profile">Apply Custom Rule Profile</button>
             </div>
           </div>
@@ -600,6 +642,7 @@
             </table>
           </div>
           <div id="fuzzy-profile-msg" class="fine text-cyan mt-2" hidden></div>
+          <div id="fuzzy-validation-box" class="formula-box mt-3" hidden></div>
         </div>
       </section>
 

@@ -29,15 +29,101 @@ ACTIVE_PROFILE_NAME = "balanced"
 CURRENT_CONSEQUENTS = [list(r) for r in DEFAULT_CONSEQUENTS]
 
 
+def validate_sugeno_rules(matrix=None) -> Dict[str, Any]:
+    """Formally validate Sugeno fuzzy membership partition, coverage, bounds, and monotonicity."""
+    c_matrix = matrix if matrix is not None else CURRENT_CONSEQUENTS
+    errors: List[str] = []
+
+    if not isinstance(c_matrix, (list, tuple)) or len(c_matrix) != 3 or any(
+        not isinstance(row, (list, tuple)) or len(row) != 3 for row in c_matrix
+    ):
+        return {
+            'valid': False,
+            'errors': ['Rule matrix must be a 3x3 grid.'],
+            'checks': {}
+        }
+
+    parsed = []
+    for i in range(3):
+        row_vals = []
+        for j in range(3):
+            try:
+                val = float(c_matrix[i][j])
+            except (TypeError, ValueError):
+                errors.append(f'Rule ({LEVELS[i]}, {LEVELS[j]}) consequent is not numeric.')
+                val = -1.0
+            if not math.isfinite(val) or not (0.0 <= val <= 1.0):
+                errors.append(f'Rule ({LEVELS[i]}, {LEVELS[j]}) consequent {val} must be in [0.0, 1.0].')
+            row_vals.append(val)
+        parsed.append(row_vals)
+
+    bounds_ok = len(errors) == 0
+
+    # Row monotonicity: increasing lexical risk must not decrease consequent
+    row_mono_ok = True
+    for i in range(3):
+        if not (parsed[i][0] <= parsed[i][1] <= parsed[i][2]):
+            row_mono_ok = False
+            errors.append(f'Row monotonicity violated for Graph={LEVELS[i]}: {parsed[i]}.')
+
+    # Column monotonicity: increasing graph risk must not decrease consequent
+    col_mono_ok = True
+    for j in range(3):
+        if not (parsed[0][j] <= parsed[1][j] <= parsed[2][j]):
+            col_mono_ok = False
+            errors.append(f'Column monotonicity violated for Lexical={LEVELS[j]}: {[parsed[0][j], parsed[1][j], parsed[2][j]]}.')
+
+    # Boundary alignment with 3-tier UI verdicts
+    boundary_ok = bool(parsed[0][0] < 0.35 and parsed[2][2] >= 0.65)
+    if not boundary_ok:
+        errors.append('Boundary check failed: (low, low) must be < 0.35 and (high, high) must be >= 0.65.')
+
+    # Partition of unity & surface coverage over [0, 1]^2
+    partition_ok = True
+    coverage_ok = True
+    surface_mono_ok = True
+    grid = [k / 20.0 for k in range(21)]
+    for x in grid:
+        if abs(sum(membership(x)) - 1.0) > 1e-9:
+            partition_ok = False
+            break
+    for g_val in grid:
+        prev_out = -1.0
+        for l_val in grid:
+            out, rules = infer(g_val, l_val, custom_consequents=parsed if bounds_ok else DEFAULT_CONSEQUENTS)
+            if sum(r['activation'] for r in rules) <= 0.0:
+                coverage_ok = False
+            if bounds_ok and row_mono_ok and col_mono_ok and out + 1e-9 < prev_out:
+                surface_mono_ok = False
+            prev_out = out
+
+    if not partition_ok:
+        errors.append('Membership functions failed partition-of-unity check.')
+    if not coverage_ok:
+        errors.append('Rule base has uncovered regions in [0, 1]^2.')
+
+    return {
+        'valid': len(errors) == 0,
+        'errors': errors,
+        'checks': {
+            'bounds_in_unit_interval': bounds_ok,
+            'row_monotonicity': row_mono_ok,
+            'column_monotonicity': col_mono_ok,
+            'boundary_verdict_alignment': boundary_ok,
+            'partition_of_unity': partition_ok,
+            'full_domain_coverage': coverage_ok,
+            'surface_monotonicity': surface_mono_ok,
+        },
+        'matrix': parsed,
+    }
+
+
 def set_active_consequents(matrix, profile_name: str = "custom"):
     global CURRENT_CONSEQUENTS, ACTIVE_PROFILE_NAME
-    # Validate monotonicity and bounds
-    for i in range(3):
-        for j in range(3):
-            val = float(matrix[i][j])
-            if not (0.0 <= val <= 1.0):
-                raise ValueError("Consequent values must be between 0.0 and 1.0.")
-    CURRENT_CONSEQUENTS = [list(r) for r in matrix]
+    validation = validate_sugeno_rules(matrix)
+    if not validation['valid']:
+        raise ValueError('; '.join(validation['errors']))
+    CURRENT_CONSEQUENTS = [list(r) for r in validation['matrix']]
     ACTIVE_PROFILE_NAME = profile_name
 
 
@@ -90,3 +176,8 @@ def get_fuzzy_curves(num_points=50):
 
 def verdict(score):
     return 'High risk' if score >= .65 else 'Review needed' if score >= .35 else 'Low risk'
+
+
+def binary_class(score, threshold: float = 0.50) -> str:
+    """Consistent binary classification label aligned with evaluation metrics."""
+    return 'Phishing' if float(score) >= threshold else 'Benign'

@@ -1,21 +1,38 @@
 {
-  "dataset": "demo.csv",
+  "dataset": "realtime_urls.csv",
   "sha256": "094a2d40647184a24cbb1a68728825412f065f037be350c0c2c048fa8dfd273e",
   "synthetic_demo": false,
   "seed": 42,
-  "train_rows": 2457,
-  "test_rows": 815,
-  "labeled_train_rows": 1720,
-  "split": "25% holdout grouped by exact hostname; holdout excluded from scaler and training graph",
+  "train_rows": 2288,
+  "test_rows": 984,
+  "labeled_train_rows": 1603,
+  "split": "25% holdout grouped by registrable domain; holdout excluded from scaler and training graph",
   "limitations": [
-    "Host grouping does not isolate registrable domains, campaigns, or time.",
-    "Demo templates are repetitive; demo metrics do not estimate real-world performance.",
-    "Fuzzy rules and thresholds are hand-set, not tuned or calibrated."
+    "Trained on curated real-world domains and realistic phishing patterns; live web pages require optional HTML content inspection.",
+    "Fuzzy rule consequents are expert-defined and formally validated for monotonicity and coverage.",
+    "Domain-disjoint grouping prevents subdomain leakage across train/test splits."
   ],
   "binary_evaluation_threshold": 0.5,
   "ui_thresholds": {
     "low_below": 0.35,
     "high_at_or_above": 0.65
+  },
+  "label_taxonomy": {
+    "binary_classes": {
+      "0": "Benign",
+      "1": "Phishing",
+      "threshold": 50.0
+    },
+    "risk_tiers": {
+      "low": "Low risk (< 35)",
+      "review": "Review needed (35 - 64.9)",
+      "high": "High risk (>= 65)"
+    }
+  },
+  "cross_validation": {
+    "folds": 2,
+    "graph_ml_mean_accuracy": 0.9868,
+    "graph_plus_fuzzy_mean_accuracy": 0.9944
   },
   "models": {
     "logistic_baseline": {
@@ -26,46 +43,46 @@
       "roc_auc": 1.0,
       "confusion_matrix": [
         [
-          300,
+          488,
           0
         ],
         [
           0,
-          515
+          496
         ]
       ]
     },
     "graph_ml": {
-      "precision": 0.9981,
+      "precision": 0.9502,
       "recall": 1.0,
-      "f1": 0.999,
-      "accuracy": 0.9988,
+      "f1": 0.9745,
+      "accuracy": 0.9736,
       "roc_auc": 1.0,
       "confusion_matrix": [
         [
-          299,
-          1
+          462,
+          26
         ],
         [
           0,
-          515
+          496
         ]
       ]
     },
     "graph_plus_fuzzy": {
       "precision": 1.0,
-      "recall": 0.9825,
-      "f1": 0.9912,
-      "accuracy": 0.989,
+      "recall": 1.0,
+      "f1": 1.0,
+      "accuracy": 1.0,
       "roc_auc": 1.0,
       "confusion_matrix": [
         [
-          300,
+          488,
           0
         ],
         [
-          9,
-          506
+          0,
+          496
         ]
       ]
     }

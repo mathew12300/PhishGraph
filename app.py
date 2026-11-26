@@ -19,10 +19,12 @@ from phishguard.database import (
     init_db, insert_scan, query_history, get_scan_by_id,
     clear_all_history, delete_scan_record, update_scan_triage, get_triage_queue
 )
+from phishguard.content import analyze_html_content, fetch_html_safely
 from phishguard.datasets import validate_and_register_dataset, list_datasets
 from phishguard.features import FEATURE_INFO, parse_url
 from phishguard.fuzzy import (
-    infer, get_fuzzy_curves, verdict, get_active_profile, set_active_consequents, PRESET_PROFILES
+    infer, get_fuzzy_curves, verdict, binary_class, validate_sugeno_rules,
+    get_active_profile, set_active_consequents, PRESET_PROFILES
 )
 from phishguard.model import Detector
 from phishguard.reports import export_batch_csv, generate_single_pdf_report, generate_batch_pdf_report
@@ -327,10 +329,53 @@ def create_app(model=None, database=None):
                 'lexical_score': l,
                 'risk_score': round(score * 100, 2),
                 'verdict': verdict(score),
+                'predicted_class': binary_class(score),
                 'rules': rules
             })
         except Exception as e:
             return jsonify(error=str(e)), 400
+
+    @app.route('/api/fuzzy/validate', methods=['GET', 'POST'])
+    def fuzzy_validate_endpoint():
+        matrix = None
+        if request.method == 'POST':
+            body = request.get_json(silent=True) or {}
+            matrix = body.get('consequents')
+        result = validate_sugeno_rules(matrix)
+        return jsonify(result), (200 if result['valid'] else 400)
+
+    # -------------------------------------------------------------
+    # WEBSITE CONTENT ANALYSIS (PASSIVE HTML / SSRF-GUARDED FETCH)
+    # -------------------------------------------------------------
+    @app.post('/api/content/analyze')
+    def content_analyze_endpoint():
+        body = request.get_json(silent=True)
+        if not isinstance(body, dict):
+            return jsonify(error='Send a JSON object with html or url.'), 400
+
+        url_val = (body.get('url') or '').strip()
+        html_val = body.get('html') or ''
+        fetch_live = bool(body.get('fetch_live', False))
+
+        fetch_meta = None
+        if not html_val and fetch_live:
+            if not url_val:
+                return jsonify(error='Provide a valid HTTP(S) URL for live HTML inspection.'), 400
+            try:
+                canonical, _ = parse_url(url_val)
+                html_val, fetch_meta = fetch_html_safely(canonical)
+            except ValueError as err:
+                return jsonify(error=str(err)), 400
+        elif not html_val:
+            return jsonify(error='Provide HTML source code or enable opt-in live HTML fetch.'), 400
+
+        try:
+            analysis = analyze_html_content(html_val, url=url_val)
+            if fetch_meta:
+                analysis['fetch_meta'] = fetch_meta
+            return jsonify(analysis)
+        except ValueError as err:
+            return jsonify(error=str(err)), 400
 
     # -------------------------------------------------------------
     # DATASET MANAGEMENT
